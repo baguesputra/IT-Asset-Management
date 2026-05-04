@@ -4,6 +4,52 @@ import os
 import uuid
 from datetime import datetime
 
+# ── Helper functions ──────────────────────────────────────
+def pilih_dari_list(items, prompt="Pilih (nomor):"):
+    """
+    Tampilkan daftar items bernomor, minta user pilih satu.
+    Loop sampai input valid, return item yang dipilih.
+    """
+    for i, item in enumerate(items, 1):
+        print(f"  {i}. {item}")
+
+    while True:
+        try:
+            choice = int(input(prompt))
+            if 1 <= choice <= len(items):
+                return items[choice - 1]
+            else:
+                print(f"❌ Pilihan harus antara 1 dan {len(items)}. Coba lagi.")
+        except ValueError:
+            print("❌ Input tidak valid. Masukkan nomor yang sesuai.")
+
+def input_teks(prompt, wajib=True):
+    """Minta input teks. Kalau wajib=True, tidak boleh kosong."""
+    while True:
+        nilai = input(prompt).strip()
+        if nilai:
+            return nilai
+        if wajib:
+            print("  Tidak boleh kosong.")
+        else:
+            return nilai
+
+def input_tanggal(prompt):
+    """Minta input tanggal format YYYY-MM-DD, validasi format-nya."""
+    while True:
+        nilai = input(prompt).strip()
+        try:
+            # datetime.strptime akan ERROR kalau format tidak cocok
+            datetime.strptime(nilai, "%Y-%m-%d")
+            return nilai                   # format valid, return string-nya
+        except ValueError:
+            print("  Format salah. Gunakan YYYY-MM-DD, contoh: 2023-01-15")
+
+# ── Data constants ────────────────────────────────────────
+
+ASSET_TYPES = ["PC", "Laptop", "Printer", ...]  # biarkan seperti semula
+
+
 DATA_FILE = "data/assets.json"
 LOG_FILE = "logs/activity.log"
 
@@ -44,35 +90,20 @@ def add_asset():
 
     assets = load_assets()
 
+    # BARU — 1 baris, bersih
     print("\nJenis Asset:")
-    for i, t in enumerate(ASSET_TYPES, 1):
-        print(f"  {i}. {t}")
-    while True:
-        try:
-            choice = int(input("Pilih jenis (nomor): "))
-            asset_type = ASSET_TYPES[choice - 1]
-            break
-        except (ValueError, IndexError):
-            print("Pilihan tidak valid, coba lagi.")
+    asset_type = pilih_dari_list(ASSET_TYPES, "Pilih jenis: ")
 
-    name = input("Nama Asset (contoh: PC-IGD-01): ").strip()
-    brand = input("Merk/Model: ").strip()
-    serial = input("Serial Number: ").strip()
-    purchase_date = input("Tanggal Pembelian (YYYY-MM-DD): ").strip()
+    name         = input_teks("\nNama Asset (contoh: PC-IGD-01): ")
+    brand        = input_teks("Merk/Model: ")
+    serial       = input_teks("Serial Number: ")
+    purchase_date = input_tanggal("Tanggal Pembelian (YYYY-MM-DD), contoh 2023-01-15: ")
 
     print("\nLokasi:")
-    for i, loc in enumerate(LOCATIONS, 1):
-        print(f"  {i}. {loc}")
-    while True:
-        try:
-            choice = int(input("Pilih lokasi (nomor): "))
-            location = LOCATIONS[choice - 1]
-            break
-        except (ValueError, IndexError):
-            print("Pilihan tidak valid, coba lagi.")
+    location = pilih_dari_list(LOCATIONS, "Pilih lokasi: ")
 
-    pic = input("PIC (Penanggung Jawab): ").strip()
-    notes = input("Catatan (opsional): ").strip()
+    pic   = input_teks("PIC (Penanggung Jawab): ")
+    notes = input_teks("Catatan (opsional): ", wajib=False)
 
     asset = {
         "id": generate_id(),
