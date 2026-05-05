@@ -1,35 +1,53 @@
-def pilih_dari_list(items, prompt="Pilih (nomor): "):
-    """
-    Tampilkan daftar items bernomor, minta user pilih satu.
-    Loop sampai input valid, return item yang dipilih.
-    """
-    for i, item in enumerate(items, 1):
-        print(f"  {i}. {item}")
+from datetime import datetime
+import uuid
 
-    while True:
-        try:
-            choice = int(input("Pilih nomor: "))
-            if 1 <= choice <= len(items):
-                return items[choice - 1]
-            else:
-                print(f"❌ Pilihan harus antara 1 dan {len(items)}. Coba lagi.")
-        except ValueError:
-            print("❌ Input tidak valid. Masukkan nomor yang sesuai.")
+def generate_id():
+    return str(uuid.uuid4())[:8].upper()
 
-# Test :
-buah = ["Apel", "Jeruk", "Pisang", "Mangga"]
-hasil = pilih_dari_list(buah)
-print(f"Kamu memilih: {hasil}")
+class Asset:
+    def __init__(self, name, asset_type, location, pic):
+        self.name     = name
+        self.type     = asset_type
+        self.location = location
+        self.pic      = pic
+        self.status   = "Aktif"
+        self.id       = generate_id()
+        self.created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def __str__(self):
+        # self di sini = objek yang sedang di-print
+        return f"[{self.id}] {self.name} | {self.type} | {self.location} | {self.status}"
+    
+    def update_status(self, status_baru):
+        """Ubah status dan catat waktu update otomatis."""
+        self.status     = status_baru
+        self.updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    def to_dict(self):
+        """Konversi objek ke dictionary — untuk disimpan ke JSON."""
+        return {
+            "id":           self.id,
+            "name":         self.name,
+            "type":         self.type,
+            "location":     self.location,
+            "pic":          self.pic,
+            "status":       self.status,
+            "created_at":   self.created_at,
+            "updated_at":   self.updated_at,
+        }
 
-def input_teks(prompt, wajib=True):
-    while True:
-        nilai = input(prompt).strip()   # .strip() buang spasi di awal/akhir
-        
-        if nilai:                       # kalau tidak kosong
-            return nilai
-        
-        if wajib:
-            print("  Tidak boleh kosong.")
-        else:
-            return nilai                # boleh kosong, langsung return ""
+# buat dua objek dari blueprint yang sama
+pc      = Asset("PC-IGD-01", "PC", "IGD", "Budi")
+printer = Asset("PRINTER-FARMASI-01", "Printer", "Farmasi", "Siti")
+
+# akses datanya
+print(pc.name)       # PC-IGD-01
+print(pc.status)     # Aktif
+print(printer.name)  # PRINTER-FARMASI-01
+print(pc.id)         # ID unik
+print(printer.id)    # ID unik yang BERBEDA
+print(pc)
+pc.update_status("Rusak")
+print(pc)
+print(pc.to_dict())
+print(pc.updated_at)
