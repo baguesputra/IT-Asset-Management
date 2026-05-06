@@ -527,6 +527,146 @@ def export_csv():
     print(f"\n✅ Berhasil diekspor ke: {filename}")
     print(f"   Total: {len(assets)} asset")
 
+def import_csv():
+    """
+    Import data asset dari file CSV.
+    Validasi tiap baris sebelum dimasukkan ke data.
+    Baris yang bermasalah di-skip dan dilaporkan.
+    """
+    print("\n" + "="*50)
+    print("       IMPORT DARI CSV")
+    print("="*50)
+
+    # minta path file dari user
+    path = input_teks("\nPath file CSV (contoh: imports/data.csv): ")
+
+    # cek apakah file ada
+    # os.path.exists() return True/False
+    if not os.path.exists(path):
+        print(f"❌ File '{path}' tidak ditemukan.")
+        return
+
+    # kolom yang WAJIB ada di CSV
+    KOLOM_WAJIB = ["name", "type", "location", "pic"]
+
+    assets_sekarang = load_assets()
+
+    # kumpulkan nama asset yang sudah ada — untuk cek duplikat
+    # set() seperti list tapi tidak boleh ada nilai yang sama
+    # dan pengecekan "in" jauh lebih cepat dari list
+    nama_existing = {a["name"].lower() for a in assets_sekarang}
+
+    berhasil  = []   # asset yang lolos validasi
+    gagal     = []   # baris yang di-skip beserta alasannya
+    nama_csv  = set()  # nama dari CSV — untuk cek duplikat internal
+
+    def safe(val, default=""):
+            return (val or default).strip()
+
+    # baca file CSV
+    with open(path, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+
+        # cek apakah kolom wajib ada di header CSV
+        # reader.fieldnames berisi list nama kolom
+        if not reader.fieldnames:
+            print("❌ File CSV kosong atau tidak punya header.")
+            return
+
+        kolom_tidak_ada = [
+            k for k in KOLOM_WAJIB
+            if k not in reader.fieldnames
+        ]
+        if kolom_tidak_ada:
+            print(f"❌ Kolom berikut tidak ada di CSV: {', '.join(kolom_tidak_ada)}")
+            print(f"   Kolom wajib: {', '.join(KOLOM_WAJIB)}")
+            return
+
+        # proses tiap baris
+        for nomor, baris in enumerate(reader, 1):
+
+            # skip baris kosong
+            if all(v is None for v in baris.values()):
+                continue
+
+            # INI yang perlu diindent masuk ke dalam for
+            nama = baris.get("name", "") or ""
+            nama = nama.strip()
+
+            # validasi 1: nama tidak boleh kosong
+            if not nama:
+                gagal.append(f"Baris {nomor}: nama kosong")
+                continue
+
+            # validasi 2: duplikat di dalam file CSV itu sendiri
+            if nama.lower() in nama_csv:
+                gagal.append(f"Baris {nomor}: '{nama}' duplikat di dalam CSV")
+                continue
+
+            # validasi 3: sudah ada di data sekarang
+            if nama.lower() in nama_existing:
+                gagal.append(f"Baris {nomor}: '{nama}' sudah ada di data")
+                continue
+
+            # lolos semua validasi — buat asset baru
+            # .get() dengan default "" agar tidak crash kalau kolom tidak ada
+            def safe(val, default=""):
+                """Konversi None ke string kosong, lalu strip."""
+                return (val or default).strip()
+            asset = {
+                "id":            generate_id(),
+                "name":          nama,
+                "type":          safe(baris.get("type"), "Lainnya"),
+                "brand":         safe(baris.get("brand")),
+                "serial":        safe(baris.get("serial")),
+                "purchase_date": safe(baris.get("purchase_date")),
+                "location":      safe(baris.get("location")),
+                "pic":           safe(baris.get("pic")),
+                "status":        safe(baris.get("status"), "Aktif"),
+                "notes":         safe(baris.get("notes")),
+                "created_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "updated_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+
+            berhasil.append(asset)
+            nama_csv.add(nama.lower())   # catat nama ini sudah diproses
+
+    # --- konfirmasi sebelum simpan ---
+    print(f"\nHasil pembacaan CSV:")
+    print(f"  Siap diimport : {len(berhasil)} asset")
+    print(f"  Di-skip       : {len(gagal)} baris")
+
+    if gagal:
+        print("\nBaris yang di-skip:")
+        for alasan in gagal:
+            print(f"  ✗ {alasan}")
+
+    if not berhasil:
+        print("\n❌ Tidak ada data yang bisa diimport.")
+        return
+
+    # tampilkan preview asset yang akan masuk
+    print(f"\nPreview asset yang akan diimport:")
+    print(f"  {'Nama':<22} {'Jenis':<12} {'Lokasi':<15} {'PIC'}")
+    print("  " + "-"*60)
+    for a in berhasil[:5]:    # tampilkan maksimal 5 dulu
+        print(f"  {a['name']:<22} {a['type']:<12} {a['location']:<15} {a['pic']}")
+    if len(berhasil) > 5:
+        print(f"  ... dan {len(berhasil) - 5} asset lainnya")
+
+    # konfirmasi
+    konfirmasi = input(f"\nLanjutkan import {len(berhasil)} asset? (y/n): ").strip().lower()
+    if konfirmasi != "y":
+        print("❌ Import dibatalkan.")
+        return
+
+    # simpan
+    assets_sekarang.extend(berhasil)
+    save_assets(assets_sekarang)
+    write_log("IMPORT", f"{len(berhasil)} asset diimport dari '{path}'")
+
+    print(f"\n✅ Berhasil mengimport {len(berhasil)} asset!")
+
 def view_log():
     print("\n" + "="*50)
     print("       LOG AKTIVITAS")

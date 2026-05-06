@@ -1,0 +1,8 @@
+﻿id,name,type,brand,serial,purchase_date,location,pic,status,notes,created_at,updated_at
+"A1B2C3D4,PC-IGD-01,PC,HP EliteDesk 800,SN-HP-2023-001,2023-01-15,IGD,Budi Santoso,Aktif,""PC utama IGD, terkoneksi ke sistem EMR"",2026-05-04 09:13:56,2026-05-04 09:13:56"
+E5F6G7H8,PRINTER-FARMASI-01,Printer,Epson L3150,SN-EP-2022-045,2022-06-10,Farmasi,Siti Rahayu,Aktif,Printer struk resep,2026-05-04 09:13:56,2026-05-04 09:13:56
+I9J0K1L2,CCTV-LOBBY-01,CCTV,Hikvision DS-2CD2143G2-I,SN-HK-2023-012,2023-03-20,Administrasi,Ahmad Fauzi,Aktif,CCTV pintu masuk utama,2026-05-04 09:13:56,2026-05-04 09:13:56
+M3N4O5P6,SWITCH-IT-CORE,Switch,Cisco SG350-28P,SN-CS-2022-003,2022-01-05,IT,Rizky Pratama,Aktif,Core switch utama jaringan RS,2026-05-04 09:13:56,2026-05-04 09:13:56
+"Q7R8S9T0,LAPTOP-RADIOLOGI-01,Laptop,Lenovo ThinkPad E15,SN-LN-2023-007,2023-05-01,Radiologi,Dewi Lestari,Perbaikan,""Keyboard rusak, sedang diperbaiki"",2026-05-04 09:13:56,2026-05-04 09:13:56"
+F0AEEA84,SWT-ACCESS-PANEL10-01,Switch,Cisco,SHW72726382JS,2025-01-04,Lainnya,Bagues,Aktif,-,2026-05-04 09:16:07,2026-05-04 09:16:07
+43C14CAE,Test,Server,AS73828UEUD,8HIHD9D,2025-01-15,IT,Bagues,Dipinjam,-,2026-05-04 10:14:24,2026-05-05 09:41:50

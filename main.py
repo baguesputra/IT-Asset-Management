@@ -6,7 +6,7 @@ Sistem manajemen aset IT untuk lingkungan rumah sakit / klinik
 
 from asset_manager import (
     add_asset, list_assets, search_asset, filter_asset, tampilkan_statistik, reminder_asset,
-    edit_asset, delete_asset, export_csv, view_log
+    edit_asset, delete_asset, export_csv, import_csv,view_log
 )
 
 
@@ -30,8 +30,9 @@ def print_menu():
     print("│  5. Edit Asset                  │")
     print("│  6. Hapus Asset                 │")
     print("│  7. Export ke CSV               │")
-    print("│  8. Reminder Asset Lama         │")
-    print("│  9. Lihat Log Aktivitas         │")
+    print("│  8. Import dari CSV             │")
+    print("│  9. Reminder Asset Lama         │")
+    print("│  10.Lihat Log Aktivitas         │")
     print("│  0. Keluar                      │")
     print("└─────────────────────────────────┘")
 
@@ -58,9 +59,11 @@ def main():
             delete_asset()
         elif choice == "7":          # ← dulu "6"
             export_csv()
-        elif choice == "8":          # ← dulu "7"
+        elif choice == "8":          # ← dulu "6"
+            import_csv()
+        elif choice == "9":          # ← dulu "7"
             reminder_asset()
-        elif choice == "9":          # ← dulu "8"
+        elif choice == "10":          # ← dulu "8"
             view_log()
         elif choice == "0":
             print("\n👋 Terima kasih! Sampai jumpa.\n")
