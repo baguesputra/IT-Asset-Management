@@ -38,6 +38,38 @@ def pilih_dari_list(items, prompt="Pilih (nomor): "):
         except ValueError:
             print("  Masukkan angka saja.")
 
+def pilih_multi_dari_list(items, prompt="Pilih nomor (pisah koma, contoh 1,3): "):
+    """
+    User bisa pilih lebih dari satu item dari daftar.
+    Input: "1,3" → return ["Rusak", "Perbaikan"]
+    Loop sampai minimal satu pilihan valid.
+    """
+    for i, item in enumerate(items, 1):
+        print(f"  {i}. {item}")
+
+    while True:
+        jawaban = input(prompt).strip()
+
+        # .split(",") memotong string berdasarkan koma
+        # "1,3" → ["1", "3"]
+        bagian = jawaban.split(",")
+
+        hasil = []   # list kosong untuk menampung pilihan valid
+
+        for b in bagian:
+            # b.strip() buang spasi — jaga-jaga kalau user ketik "1, 3"
+            try:
+                angka = int(b.strip())
+                if 1 <= angka <= len(items):
+                    hasil.append(items[angka - 1])
+                # kalau di luar range, skip saja — tidak dimasukkan
+            except ValueError:
+                pass   # kalau bukan angka, skip
+
+        if hasil:          # kalau ada minimal satu pilihan valid
+            return hasil   # return list, bukan satu item
+
+        print(f"  Masukkan minimal satu nomor yang valid (1–{len(items)}).")
 
 def pilih_dari_list_opsional(items, nilai_saat_ini, prompt):
     """
@@ -62,7 +94,6 @@ def pilih_dari_list_opsional(items, nilai_saat_ini, prompt):
         except ValueError:
             print("  Masukkan angka saja, atau Enter untuk skip.")
 
-
 def input_teks(prompt, wajib=True):
     """
     Minta input teks bebas.
@@ -78,7 +109,6 @@ def input_teks(prompt, wajib=True):
         else:
             return nilai
 
-
 def input_teks_opsional(label, nilai_saat_ini):
     """
     Untuk form EDIT. Tampilkan nilai saat ini, user boleh skip.
@@ -91,7 +121,6 @@ def input_teks_opsional(label, nilai_saat_ini):
     if nilai == "":
         return None
     return nilai
-
 
 def input_tanggal(prompt):
     """
@@ -107,7 +136,6 @@ def input_tanggal(prompt):
         except ValueError:
             print("  Format salah. Gunakan YYYY-MM-DD, contoh: 2024-01-15")
 
-
 # ============================================================
 # FUNGSI UTILITAS — load, save, log, generate ID
 # ============================================================
@@ -119,19 +147,16 @@ def load_assets():
     with open(DATA_FILE, "r") as f:
         return json.load(f)
 
-
 def save_assets(assets):
     os.makedirs("data", exist_ok=True)
     with open(DATA_FILE, "w") as f:
         json.dump(assets, f, indent=2, ensure_ascii=False)
-
 
 def write_log(action, detail):
     os.makedirs("logs", exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f"[{timestamp}] {action}: {detail}\n")
-
 
 def generate_id():
     return str(uuid.uuid4())[:8].upper()
@@ -183,7 +208,6 @@ def add_asset():
 
     print(f"\n✅ Asset berhasil ditambahkan! ID: {asset['id']}")
 
-
 def list_assets():
     print("\n" + "="*80)
     print("                         DAFTAR SEMUA ASSET")
@@ -209,42 +233,43 @@ def filter_asset():
     print("       FILTER ASSET")
     print("="*50)
 
-    # Langkah 1: tanya user mau filter berdasarkan apa
-    # kita pakai pilih_dari_list yang sudah ada — tidak perlu buat baru
+    # Langkah 1: pilih kategori
     print("\nFilter berdasarkan:")
     kategori = pilih_dari_list(["Status", "Lokasi"], "Pilih kategori: ")
 
-    # Langkah 2: tampilkan pilihan nilainya
-    # if/elif memilih list mana yang ditampilkan
+    # Langkah 2: pilih nilai — sekarang bisa lebih dari satu
     if kategori == "Status":
-        nilai = pilih_dari_list(ASSET_STATUS, "Pilih status: ")
-        key   = "status"   # key di dictionary asset yang akan dicek
+        print("\nPilih status (boleh lebih dari satu, pisah koma):")
+        nilai_list = pilih_multi_dari_list(ASSET_STATUS)
+        key        = "status"
     elif kategori == "Lokasi":
-        nilai = pilih_dari_list(LOCATIONS, "Pilih lokasi: ")
-        key   = "location"
+        print("\nPilih lokasi (boleh lebih dari satu, pisah koma):")
+        nilai_list = pilih_multi_dari_list(LOCATIONS)
+        key        = "location"
 
-    # Langkah 3: saring asset yang cocok
-    # a[key] == nilai  →  cek apakah field itu sama dengan pilihan user
+    # Langkah 3: filter
+    # dulu:  a[key] == nilai          → satu nilai
+    # baru:  a[key] in nilai_list     → cek apakah ada di list
     assets  = load_assets()
-    results = [a for a in assets if a[key] == nilai]
+    results = [a for a in assets if a[key] in nilai_list]
 
-    # Langkah 4: tampilkan hasilnya
-    print(f"\n{'='*50}")
-    print(f"  Hasil filter: {kategori} = {nilai}")
-    print(f"{'='*50}")
+    # Langkah 4: tampilkan
+    # ", ".join(nilai_list) gabungkan list jadi string
+    # ["Rusak", "Perbaikan"] → "Rusak, Perbaikan"
+    label = ", ".join(nilai_list)
+
+    print(f"\nHasil filter: {kategori} = {label}")
+    print("-"*70)
 
     if not results:
-        print(f"  Tidak ada asset dengan {kategori.lower()} '{nilai}'.")
+        print(f"Tidak ada asset dengan {kategori.lower()} '{label}'.")
         return
 
-    # format tabel — sama seperti list_assets()
-    print(f"\n{'ID':<10} {'Nama':<20} {'Jenis':<10} {'Lokasi':<15} {'Status':<12} {'PIC':<15}")
-    print("-"*80)
-
+    print(f"{'ID':<10} {'Nama':<20} {'Jenis':<10} {'Status':<12} {'Lokasi':<15}")
+    print("-"*70)
     for a in results:
-        print(f"{a['id']:<10} {a['name']:<20} {a['type']:<10} {a['location']:<15} {a['status']:<12} {a['pic']:<15}")
-
-    print("-"*80)
+        print(f"{a['id']:<10} {a['name']:<20} {a['type']:<10} {a['status']:<12} {a['location']:<15}")
+    print("-"*70)
     print(f"Ditemukan: {len(results)} asset")
 
 def search_asset():
@@ -281,7 +306,6 @@ def search_asset():
         print(f"  Catatan   : {a.get('notes', '-')}")
         print(f"  Dibuat    : {a['created_at']}")
         print("-"*40)
-
 
 def edit_asset():
     print("\n" + "="*50)
@@ -330,7 +354,6 @@ def edit_asset():
 
     print(f"\n✅ Asset berhasil diperbarui!")
 
-
 def delete_asset():
     print("\n" + "="*50)
     print("       HAPUS ASSET")
@@ -362,7 +385,6 @@ def delete_asset():
 
     print(f"\n✅ Asset '{target['name']}' berhasil dihapus!")
 
-
 def export_csv():
     print("\n" + "="*50)
     print("       EXPORT KE CSV")
@@ -391,7 +413,6 @@ def export_csv():
 
     print(f"\n✅ Berhasil diekspor ke: {filename}")
     print(f"   Total: {len(assets)} asset")
-
 
 def view_log():
     print("\n" + "="*50)
