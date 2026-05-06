@@ -5,7 +5,7 @@ Sistem manajemen aset IT untuk lingkungan rumah sakit / klinik
 """
 
 from asset_manager import (
-    add_asset, list_assets, search_asset,
+    add_asset, list_assets, search_asset, filter_asset,
     edit_asset, delete_asset, export_csv, view_log
 )
 
@@ -26,10 +26,11 @@ def print_menu():
     print("│  1. Lihat Semua Asset           │")
     print("│  2. Tambah Asset Baru           │")
     print("│  3. Cari Asset                  │")
-    print("│  4. Edit Asset                  │")
-    print("│  5. Hapus Asset                 │")
-    print("│  6. Export ke CSV               │")
-    print("│  7. Lihat Log Aktivitas         │")
+    print("│  4. Filter Asset                │")  
+    print("│  5. Edit Asset                  │")
+    print("│  6. Hapus Asset                 │")
+    print("│  7. Export ke CSV               │")
+    print("│  8. Lihat Log Aktivitas         │")
     print("│  0. Keluar                      │")
     print("└─────────────────────────────────┘")
 
@@ -47,19 +48,21 @@ def main():
             add_asset()
         elif choice == "3":
             search_asset()
-        elif choice == "4":
+        elif choice == "4":          # ← tambah ini
+            filter_asset()
+        elif choice == "5":          # ← dulu "4"
             edit_asset()
-        elif choice == "5":
+        elif choice == "6":          # ← dulu "5"
             delete_asset()
-        elif choice == "6":
+        elif choice == "7":          # ← dulu "6"
             export_csv()
-        elif choice == "7":
+        elif choice == "8":          # ← dulu "7"
             view_log()
         elif choice == "0":
             print("\n👋 Terima kasih! Sampai jumpa.\n")
             break
         else:
-            print("❌ Pilihan tidak valid. Silakan coba lagi.")
+            print("❌ choice tidak valid. Silakan coba lagi.")
 
         input("\nTekan Enter untuk kembali ke menu...")
 

@@ -204,6 +204,48 @@ def list_assets():
     print("-"*80)
     print(f"Total: {len(assets)} asset")
 
+def filter_asset():
+    print("\n" + "="*50)
+    print("       FILTER ASSET")
+    print("="*50)
+
+    # Langkah 1: tanya user mau filter berdasarkan apa
+    # kita pakai pilih_dari_list yang sudah ada — tidak perlu buat baru
+    print("\nFilter berdasarkan:")
+    kategori = pilih_dari_list(["Status", "Lokasi"], "Pilih kategori: ")
+
+    # Langkah 2: tampilkan pilihan nilainya
+    # if/elif memilih list mana yang ditampilkan
+    if kategori == "Status":
+        nilai = pilih_dari_list(ASSET_STATUS, "Pilih status: ")
+        key   = "status"   # key di dictionary asset yang akan dicek
+    elif kategori == "Lokasi":
+        nilai = pilih_dari_list(LOCATIONS, "Pilih lokasi: ")
+        key   = "location"
+
+    # Langkah 3: saring asset yang cocok
+    # a[key] == nilai  →  cek apakah field itu sama dengan pilihan user
+    assets  = load_assets()
+    results = [a for a in assets if a[key] == nilai]
+
+    # Langkah 4: tampilkan hasilnya
+    print(f"\n{'='*50}")
+    print(f"  Hasil filter: {kategori} = {nilai}")
+    print(f"{'='*50}")
+
+    if not results:
+        print(f"  Tidak ada asset dengan {kategori.lower()} '{nilai}'.")
+        return
+
+    # format tabel — sama seperti list_assets()
+    print(f"\n{'ID':<10} {'Nama':<20} {'Jenis':<10} {'Lokasi':<15} {'Status':<12} {'PIC':<15}")
+    print("-"*80)
+
+    for a in results:
+        print(f"{a['id']:<10} {a['name']:<20} {a['type']:<10} {a['location']:<15} {a['status']:<12} {a['pic']:<15}")
+
+    print("-"*80)
+    print(f"Ditemukan: {len(results)} asset")
 
 def search_asset():
     print("\n" + "="*50)
