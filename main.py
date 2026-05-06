@@ -5,7 +5,7 @@ Sistem manajemen aset IT untuk lingkungan rumah sakit / klinik
 """
 
 from asset_manager import (
-    add_asset, list_assets, search_asset, filter_asset,
+    add_asset, list_assets, search_asset, filter_asset, tampilkan_statistik,
     edit_asset, delete_asset, export_csv, view_log
 )
 
@@ -39,6 +39,7 @@ def main():
     print_banner()
 
     while True:
+        tampilkan_statistik()
         print_menu()
         choice = input("\nPilih menu: ").strip()
 

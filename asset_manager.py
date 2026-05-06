@@ -3,6 +3,7 @@ import csv
 import os
 import uuid
 from datetime import datetime
+from collections import Counter 
 
 
 # ============================================================
@@ -165,6 +166,46 @@ def generate_id():
 # ============================================================
 # FITUR UTAMA
 # ============================================================
+def tampilkan_statistik():
+    """
+    Tampilkan ringkasan data asset:
+    total, jumlah per status, lokasi terbanyak.
+    Dipanggil otomatis setiap menu utama tampil.
+    """
+    assets = load_assets()
+
+    # kalau belum ada data, tidak tampilkan apapun
+    if not assets:
+        return
+
+    # --- hitung per status ---
+    # list comprehension: ambil semua nilai "status" dari tiap asset
+    semua_status = [a["status"] for a in assets]
+
+    # Counter hitung otomatis berapa kali tiap nilai muncul
+    hitung_status = Counter(semua_status)
+
+    # --- hitung per lokasi ---
+    semua_lokasi = [a["location"] for a in assets]
+    hitung_lokasi = Counter(semua_lokasi)
+
+    # .most_common(1) return list berisi 1 item paling sering muncul
+    # bentuknya: [("IGD", 4)]
+    # [0]    → ambil item pertama: ("IGD", 4)
+    # [0][0] → ambil nama lokasinya: "IGD"
+    # [0][1] → ambil jumlahnya: 4
+    lokasi_teratas = hitung_lokasi.most_common(1)[0]
+
+    # --- tampilkan ---
+    print("\n" + "─"*40)
+    print(f"  Total asset  : {len(assets)}")
+    print(f"  Aktif        : {hitung_status['Aktif']}")
+    print(f"  Rusak        : {hitung_status['Rusak']}")
+    print(f"  Perbaikan    : {hitung_status['Perbaikan']}")
+    print(f"  Tidak Aktif  : {hitung_status['Tidak Aktif']}")
+    print(f"  Dipinjam     : {hitung_status['Dipinjam']}")
+    print(f"  Terbanyak di : {lokasi_teratas[0]} ({lokasi_teratas[1]} asset)")
+    print("─"*40)
 
 def add_asset():
     print("\n" + "="*50)
