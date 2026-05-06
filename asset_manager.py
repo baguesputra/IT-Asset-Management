@@ -137,6 +137,78 @@ def input_tanggal(prompt):
         except ValueError:
             print("  Format salah. Gunakan YYYY-MM-DD, contoh: 2024-01-15")
 
+def reminder_asset():
+    """
+    Tampilkan asset yang sudah lebih dari N tahun sejak tanggal beli.
+    User bisa tentukan sendiri batas tahunnya.
+    """
+    print("\n" + "="*50)
+    print("       REMINDER ASSET TUA")
+    print("="*50)
+
+    # tanya user mau berapa tahun batasnya
+    # pakai try/except karena input bisa saja bukan angka
+    while True:
+        try:
+            batas = int(input("\nTampilkan asset lebih dari berapa tahun? "))
+            if batas > 0:
+                break
+            print("  Masukkan angka lebih dari 0.")
+        except ValueError:
+            print("  Masukkan angka saja.")
+
+    assets = load_assets()
+    tua    = []   # list untuk menampung asset yang memenuhi syarat
+
+    for a in assets:
+
+        # skip asset yang tidak punya tanggal pembelian
+        # .get() aman — tidak crash kalau key tidak ada
+        if not a.get("purchase_date"):
+            continue   # lanjut ke asset berikutnya
+
+        # hitung umur asset dalam tahun
+        tgl_beli     = datetime.strptime(a["purchase_date"], "%Y-%m-%d")
+        tgl_sekarang = datetime.now()
+        selisih_hari = (tgl_sekarang - tgl_beli).days
+        umur_tahun   = selisih_hari / 365.25
+
+        # kalau umurnya melebihi batas, masukkan ke list tua
+        # sekalian simpan umurnya untuk ditampilkan nanti
+        if umur_tahun > batas:
+            tua.append({
+                "asset":  a,
+                "umur":   umur_tahun,
+            })
+
+    # --- tampilkan hasilnya ---
+    print(f"\n⚠  Asset lebih dari {batas} tahun:\n")
+
+    if not tua:
+        print(f"  Tidak ada asset yang lebih dari {batas} tahun.")
+        return
+
+    # urutkan dari yang paling tua dulu
+    # sorted() mengurutkan list
+    # key=lambda x: x["umur"] → urutkan berdasarkan field "umur"
+    # reverse=True → dari besar ke kecil (tua ke muda)
+    tua = sorted(tua, key=lambda x: x["umur"], reverse=True)
+
+    print(f"  {'Nama':<22} {'Tgl Beli':<14} {'Umur':<10} {'Status':<12} {'Lokasi'}")
+    print("  " + "-"*72)
+
+    for item in tua:
+        a    = item["asset"]
+        umur = item["umur"]
+
+        # konversi umur ke format "X thn Y bln"
+        tahun = int(umur)
+        bulan = int((umur - tahun) * 12)
+
+        print(f"  {a['name']:<22} {a['purchase_date']:<14} {tahun} thn {bulan} bln   {a['status']:<12} {a['location']}")
+
+    print("  " + "-"*72)
+    print(f"  Total: {len(tua)} asset")
 # ============================================================
 # FUNGSI UTILITAS — load, save, log, generate ID
 # ============================================================
