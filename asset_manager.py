@@ -5,6 +5,7 @@ import uuid
 import shutil 
 from datetime import datetime
 from collections import Counter 
+from typing import Optional 
 
 
 # ============================================================
@@ -23,7 +24,7 @@ LOCATIONS    = ["Poli Umum", "IGD", "Radiologi", "Lab", "Farmasi", "Administrasi
 # HELPER FUNCTIONS — fungsi kecil yang dipakai berkali-kali
 # ============================================================
 
-def pilih_dari_list(items, prompt="Pilih (nomor): "):
+def pilih_dari_list(items: list, prompt: str = "Pilih (nomor): ") -> str:
     """
     Tampilkan daftar bernomor, minta user pilih satu.
     Loop terus sampai input valid. Tidak bisa di-skip.
@@ -40,7 +41,7 @@ def pilih_dari_list(items, prompt="Pilih (nomor): "):
         except ValueError:
             print("  Masukkan angka saja.")
 
-def pilih_multi_dari_list(items, prompt="Pilih nomor (pisah koma, contoh 1,3): "):
+def pilih_multi_dari_list(items: list, prompt: str = "Pilih nomor (pisah koma, contoh 1,3): ") -> list:
     """
     User bisa pilih lebih dari satu item dari daftar.
     Input: "1,3" → return ["Rusak", "Perbaikan"]
@@ -73,7 +74,7 @@ def pilih_multi_dari_list(items, prompt="Pilih nomor (pisah koma, contoh 1,3): "
 
         print(f"  Masukkan minimal satu nomor yang valid (1–{len(items)}).")
 
-def pilih_dari_list_opsional(items, nilai_saat_ini, prompt):
+def pilih_dari_list_opsional(items: list, nilai_saat_ini: str, prompt: str) -> Optional[str]:
     """
     Sama seperti pilih_dari_list, tapi user boleh skip dengan Enter.
     Return None kalau skip, return item kalau user pilih.
@@ -96,7 +97,7 @@ def pilih_dari_list_opsional(items, nilai_saat_ini, prompt):
         except ValueError:
             print("  Masukkan angka saja, atau Enter untuk skip.")
 
-def input_teks(prompt, wajib=True):
+def input_teks(prompt: str, wajib: bool = True) -> str:
     """
     Minta input teks bebas.
     wajib=True  → loop sampai diisi, tidak boleh kosong.
@@ -111,7 +112,7 @@ def input_teks(prompt, wajib=True):
         else:
             return nilai
 
-def input_teks_opsional(label, nilai_saat_ini):
+def input_teks_opsional(label: str, nilai_saat_ini: str) -> Optional[str]:
     """
     Untuk form EDIT. Tampilkan nilai saat ini, user boleh skip.
     Return None kalau skip, return teks baru kalau diisi.
@@ -124,7 +125,7 @@ def input_teks_opsional(label, nilai_saat_ini):
         return None
     return nilai
 
-def input_tanggal(prompt):
+def input_tanggal(prompt: str) -> str:
     """
     Minta input tanggal, validasi format YYYY-MM-DD.
     datetime.strptime() lempar ValueError kalau format salah —
@@ -138,104 +139,33 @@ def input_tanggal(prompt):
         except ValueError:
             print("  Format salah. Gunakan YYYY-MM-DD, contoh: 2024-01-15")
 
-def reminder_asset():
-    """
-    Tampilkan asset yang sudah lebih dari N tahun sejak tanggal beli.
-    User bisa tentukan sendiri batas tahunnya.
-    """
-    print("\n" + "="*50)
-    print("       REMINDER ASSET TUA")
-    print("="*50)
 
-    # tanya user mau berapa tahun batasnya
-    # pakai try/except karena input bisa saja bukan angka
-    while True:
-        try:
-            batas = int(input("\nTampilkan asset lebih dari berapa tahun? "))
-            if batas > 0:
-                break
-            print("  Masukkan angka lebih dari 0.")
-        except ValueError:
-            print("  Masukkan angka saja.")
-
-    assets = load_assets()
-    tua    = []   # list untuk menampung asset yang memenuhi syarat
-
-    for a in assets:
-
-        # skip asset yang tidak punya tanggal pembelian
-        # .get() aman — tidak crash kalau key tidak ada
-        if not a.get("purchase_date"):
-            continue   # lanjut ke asset berikutnya
-
-        # hitung umur asset dalam tahun
-        tgl_beli     = datetime.strptime(a["purchase_date"], "%Y-%m-%d")
-        tgl_sekarang = datetime.now()
-        selisih_hari = (tgl_sekarang - tgl_beli).days
-        umur_tahun   = selisih_hari / 365.25
-
-        # kalau umurnya melebihi batas, masukkan ke list tua
-        # sekalian simpan umurnya untuk ditampilkan nanti
-        if umur_tahun > batas:
-            tua.append({
-                "asset":  a,
-                "umur":   umur_tahun,
-            })
-
-    # --- tampilkan hasilnya ---
-    print(f"\n⚠  Asset lebih dari {batas} tahun:\n")
-
-    if not tua:
-        print(f"  Tidak ada asset yang lebih dari {batas} tahun.")
-        return
-
-    # urutkan dari yang paling tua dulu
-    # sorted() mengurutkan list
-    # key=lambda x: x["umur"] → urutkan berdasarkan field "umur"
-    # reverse=True → dari besar ke kecil (tua ke muda)
-    tua = sorted(tua, key=lambda x: x["umur"], reverse=True)
-
-    print(f"  {'Nama':<22} {'Tgl Beli':<14} {'Umur':<10} {'Status':<12} {'Lokasi'}")
-    print("  " + "-"*72)
-
-    for item in tua:
-        a    = item["asset"]
-        umur = item["umur"]
-
-        # konversi umur ke format "X thn Y bln"
-        tahun = int(umur)
-        bulan = int((umur - tahun) * 12)
-
-        print(f"  {a['name']:<22} {a['purchase_date']:<14} {tahun} thn {bulan} bln   {a['status']:<12} {a['location']}")
-
-    print("  " + "-"*72)
-    print(f"  Total: {len(tua)} asset")
 # ============================================================
 # FUNGSI UTILITAS — load, save, log, generate ID
 # ============================================================
 
-def load_assets():
+def load_assets() -> list:
     os.makedirs("data", exist_ok=True)
     if not os.path.exists(DATA_FILE):
         return []
     with open(DATA_FILE, "r") as f:
         return json.load(f)
 
-def save_assets(assets):
+def save_assets(assets: list) -> None:
     os.makedirs("data", exist_ok=True)
     with open(DATA_FILE, "w") as f:
         json.dump(assets, f, indent=2, ensure_ascii=False)
 
-def write_log(action, detail):
+def write_log(action: str, detail: str) -> None:
     os.makedirs("logs", exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(f"[{timestamp}] {action}: {detail}\n")
 
-def generate_id():
+def generate_id() -> str:
     return str(uuid.uuid4())[:8].upper()
 
-def backup_data():
+def backup_data() -> None:
     """
     Buat salinan file assets.json ke folder data/backups/
     dengan nama file yang menyertakan timestamp.
@@ -272,10 +202,12 @@ def backup_data():
         yang_dihapus = semua_backup[:-MAKS_BACKUP]
         for nama_file in yang_dihapus:
             os.remove(f"{backup_dir}/{nama_file}")
+
+
 # ============================================================
 # FITUR UTAMA
 # ============================================================
-def tampilkan_statistik():
+def tampilkan_statistik() -> None:
     """
     Tampilkan ringkasan data asset:
     total, jumlah per status, lokasi terbanyak.
@@ -316,7 +248,7 @@ def tampilkan_statistik():
     print(f"  Terbanyak di : {lokasi_teratas[0]} ({lokasi_teratas[1]} asset)")
     print("─"*40)
 
-def add_asset():
+def add_asset() -> None:
     print("\n" + "="*50)
     print("       TAMBAH ASSET BARU")
     print("="*50)
@@ -359,7 +291,7 @@ def add_asset():
 
     print(f"\n✅ Asset berhasil ditambahkan! ID: {asset['id']}")
 
-def list_assets():
+def list_assets() -> None:
     print("\n" + "="*80)
     print("                         DAFTAR SEMUA ASSET")
     print("="*80)
@@ -379,7 +311,7 @@ def list_assets():
     print("-"*80)
     print(f"Total: {len(assets)} asset")
 
-def filter_asset():
+def filter_asset() -> None:
     print("\n" + "="*50)
     print("       FILTER ASSET")
     print("="*50)
@@ -423,7 +355,7 @@ def filter_asset():
     print("-"*70)
     print(f"Ditemukan: {len(results)} asset")
 
-def search_asset():
+def search_asset() -> None:
     print("\n" + "="*50)
     print("       CARI ASSET")
     print("="*50)
@@ -458,7 +390,7 @@ def search_asset():
         print(f"  Dibuat    : {a['created_at']}")
         print("-"*40)
 
-def edit_asset():
+def edit_asset() -> None:
     print("\n" + "="*50)
     print("       EDIT ASSET")
     print("="*50)
@@ -506,7 +438,7 @@ def edit_asset():
 
     print(f"\n✅ Asset berhasil diperbarui!")
 
-def delete_asset():
+def delete_asset() -> None:
     print("\n" + "="*50)
     print("       HAPUS ASSET")
     print("="*50)
@@ -538,7 +470,7 @@ def delete_asset():
 
     print(f"\n✅ Asset '{target['name']}' berhasil dihapus!")
 
-def export_csv():
+def export_csv() -> None:
     print("\n" + "="*50)
     print("       EXPORT KE CSV")
     print("="*50)
@@ -567,7 +499,7 @@ def export_csv():
     print(f"\n✅ Berhasil diekspor ke: {filename}")
     print(f"   Total: {len(assets)} asset")
 
-def import_csv():
+def import_csv() -> None:
     """
     Import data asset dari file CSV.
     Validasi tiap baris sebelum dimasukkan ke data.
@@ -708,7 +640,80 @@ def import_csv():
 
     print(f"\n✅ Berhasil mengimport {len(berhasil)} asset!")
 
-def view_log():
+def reminder_asset() -> None:
+    """
+    Tampilkan asset yang sudah lebih dari N tahun sejak tanggal beli.
+    User bisa tentukan sendiri batas tahunnya.
+    """
+    print("\n" + "="*50)
+    print("       REMINDER ASSET TUA")
+    print("="*50)
+
+    # tanya user mau berapa tahun batasnya
+    # pakai try/except karena input bisa saja bukan angka
+    while True:
+        try:
+            batas = int(input("\nTampilkan asset lebih dari berapa tahun? "))
+            if batas > 0:
+                break
+            print("  Masukkan angka lebih dari 0.")
+        except ValueError:
+            print("  Masukkan angka saja.")
+
+    assets = load_assets()
+    tua    = []   # list untuk menampung asset yang memenuhi syarat
+
+    for a in assets:
+
+        # skip asset yang tidak punya tanggal pembelian
+        # .get() aman — tidak crash kalau key tidak ada
+        if not a.get("purchase_date"):
+            continue   # lanjut ke asset berikutnya
+
+        # hitung umur asset dalam tahun
+        tgl_beli     = datetime.strptime(a["purchase_date"], "%Y-%m-%d")
+        tgl_sekarang = datetime.now()
+        selisih_hari = (tgl_sekarang - tgl_beli).days
+        umur_tahun   = selisih_hari / 365.25
+
+        # kalau umurnya melebihi batas, masukkan ke list tua
+        # sekalian simpan umurnya untuk ditampilkan nanti
+        if umur_tahun > batas:
+            tua.append({
+                "asset":  a,
+                "umur":   umur_tahun,
+            })
+
+    # --- tampilkan hasilnya ---
+    print(f"\n⚠  Asset lebih dari {batas} tahun:\n")
+
+    if not tua:
+        print(f"  Tidak ada asset yang lebih dari {batas} tahun.")
+        return
+
+    # urutkan dari yang paling tua dulu
+    # sorted() mengurutkan list
+    # key=lambda x: x["umur"] → urutkan berdasarkan field "umur"
+    # reverse=True → dari besar ke kecil (tua ke muda)
+    tua = sorted(tua, key=lambda x: x["umur"], reverse=True)
+
+    print(f"  {'Nama':<22} {'Tgl Beli':<14} {'Umur':<10} {'Status':<12} {'Lokasi'}")
+    print("  " + "-"*72)
+
+    for item in tua:
+        a    = item["asset"]
+        umur = item["umur"]
+
+        # konversi umur ke format "X thn Y bln"
+        tahun = int(umur)
+        bulan = int((umur - tahun) * 12)
+
+        print(f"  {a['name']:<22} {a['purchase_date']:<14} {tahun} thn {bulan} bln   {a['status']:<12} {a['location']}")
+
+    print("  " + "-"*72)
+    print(f"  Total: {len(tua)} asset")
+
+def view_log() -> None:
     print("\n" + "="*50)
     print("       LOG AKTIVITAS")
     print("="*50)
