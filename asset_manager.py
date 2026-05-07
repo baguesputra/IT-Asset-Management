@@ -2,6 +2,7 @@ import json
 import csv
 import os
 import uuid
+import shutil 
 from datetime import datetime
 from collections import Counter 
 
@@ -234,7 +235,43 @@ def write_log(action, detail):
 def generate_id():
     return str(uuid.uuid4())[:8].upper()
 
+def backup_data():
+    """
+    Buat salinan file assets.json ke folder data/backups/
+    dengan nama file yang menyertakan timestamp.
+    Dipanggil otomatis setiap kali data berubah.
+    Hanya simpan 10 backup terakhir — hapus yang lama.
+    """
+    # kalau file data utama belum ada, tidak perlu backup
+    if not os.path.exists(DATA_FILE):
+        return
 
+    # buat folder backups kalau belum ada
+    # exist_ok=True → tidak error kalau folder sudah ada
+    backup_dir = "data/backups"
+    os.makedirs(backup_dir, exist_ok=True)
+
+    # nama file backup menyertakan timestamp
+    # contoh: assets_20240115_083012.json
+    timestamp   = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = f"{backup_dir}/assets_{timestamp}.json"
+
+    # copy file utama ke folder backup
+    shutil.copy(DATA_FILE, backup_path)
+
+    # --- hapus backup lama, simpan hanya 10 terakhir ---
+    # os.listdir() return list nama file di folder itu
+    semua_backup = sorted(os.listdir(backup_dir))
+    # sorted() mengurutkan nama file — karena nama mengandung
+    # timestamp, urutan nama = urutan waktu (lama ke baru)
+
+    # kalau backup sudah lebih dari 10, hapus yang paling lama
+    MAKS_BACKUP = 10
+    if len(semua_backup) > MAKS_BACKUP:
+        # slice [:-MAKS_BACKUP] → semua kecuali 10 terakhir
+        yang_dihapus = semua_backup[:-MAKS_BACKUP]
+        for nama_file in yang_dihapus:
+            os.remove(f"{backup_dir}/{nama_file}")
 # ============================================================
 # FITUR UTAMA
 # ============================================================
@@ -316,6 +353,7 @@ def add_asset():
     }
 
     assets.append(asset)
+    backup_data()
     save_assets(assets)
     write_log("ADD", f"Asset '{name}' (ID: {asset['id']}) ditambahkan")
 
@@ -462,6 +500,7 @@ def edit_asset():
 
     target["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    backup_data()
     save_assets(assets)
     write_log("EDIT", f"Asset '{old_name}' (ID: {asset_id}) diperbarui")
 
@@ -493,6 +532,7 @@ def delete_asset():
         return
 
     assets = [a for a in assets if a["id"] != asset_id]
+    backup_data()
     save_assets(assets)
     write_log("DELETE", f"Asset '{target['name']}' (ID: {asset_id}) dihapus")
 
@@ -662,6 +702,7 @@ def import_csv():
 
     # simpan
     assets_sekarang.extend(berhasil)
+    backup_data()
     save_assets(assets_sekarang)
     write_log("IMPORT", f"{len(berhasil)} asset diimport dari '{path}'")
 
