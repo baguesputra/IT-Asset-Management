@@ -21,6 +21,96 @@ LOCATIONS    = ["Poli Umum", "IGD", "Radiologi", "Lab", "Farmasi", "Administrasi
 
 
 # ============================================================
+# CLASS ASSET — representasi satu asset sebagai objek
+# ============================================================
+class Asset:
+
+    def __init__(
+        self,
+        name: str,
+        asset_type: str,
+        brand: str,
+        serial: str,
+        purchase_date: str,
+        location: str,
+        pic: str,
+        notes: str = "",
+        status: str = "Aktif",
+    ) -> None:
+        # field yang diisi dari luar
+        self.name          = name
+        self.type          = asset_type
+        self.brand         = brand
+        self.serial        = serial
+        self.purchase_date = purchase_date
+        self.location      = location
+        self.pic           = pic
+        self.notes         = notes
+        self.status        = status
+
+        # field yang dibuat otomatis — tidak perlu diisi dari luar
+        self.id         = generate_id()
+        self.created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def __str__(self) -> str:
+        """Tampilan singkat saat print(asset)."""
+        return f"[{self.id}] {self.name} | {self.type} | {self.location} | {self.status}"
+
+    def update_status(self, status_baru: str) -> None:
+        """Ubah status dan catat waktu update otomatis."""
+        self.status     = status_baru
+        self.updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def to_dict(self) -> dict:
+        """
+        Konversi objek Asset ke dictionary.
+        Dipakai sebelum simpan ke JSON —
+        karena JSON tidak bisa simpan objek Python.
+        """
+        return {
+            "id":            self.id,
+            "name":          self.name,
+            "type":          self.type,
+            "brand":         self.brand,
+            "serial":        self.serial,
+            "purchase_date": self.purchase_date,
+            "location":      self.location,
+            "pic":           self.pic,
+            "notes":         self.notes,
+            "status":        self.status,
+            "created_at":    self.created_at,
+            "updated_at":    self.updated_at,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Asset":
+        """
+        Buat objek Asset dari dictionary (hasil load JSON).
+        @classmethod dipanggil dari class, bukan dari objek.
+        Contoh: asset = Asset.from_dict(data)
+        """
+        # buat objek baru lewat __init__
+        asset = cls(
+            name          = data["name"],
+            asset_type    = data["type"],
+            brand         = data.get("brand", ""),
+            serial        = data.get("serial", ""),
+            purchase_date = data.get("purchase_date", ""),
+            location      = data["location"],
+            pic           = data["pic"],
+            notes         = data.get("notes", ""),
+            status        = data.get("status", "Aktif"),
+        )
+
+        # timpa field yang dibuat otomatis — ambil dari data JSON
+        asset.id         = data["id"]
+        asset.created_at = data["created_at"]
+        asset.updated_at = data["updated_at"]
+
+        return asset
+
+# ============================================================
 # HELPER FUNCTIONS — fungsi kecil yang dipakai berkali-kali
 # ============================================================
 
@@ -269,27 +359,23 @@ def add_asset() -> None:
     pic   = input_teks("PIC (Penanggung Jawab): ")
     notes = input_teks("Catatan (opsional): ", wajib=False)
 
-    asset = {
-        "id":            generate_id(),
-        "name":          name,
-        "type":          asset_type,
-        "brand":         brand,
-        "serial":        serial,
-        "purchase_date": purchase_date,
-        "location":      location,
-        "pic":           pic,
-        "status":        "Aktif",
-        "notes":         notes,
-        "created_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "updated_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
+    asset = Asset(
+        name          = name,
+        asset_type    = asset_type,
+        brand         = brand,
+        serial        = serial,
+        purchase_date = purchase_date,
+        location      = location,
+        pic           = pic,
+        notes         = notes,
+    )
 
-    assets.append(asset)
+    assets.append(asset.to_dict())
     backup_data()
     save_assets(assets)
-    write_log("ADD", f"Asset '{name}' (ID: {asset['id']}) ditambahkan")
+    write_log("ADD", f"Asset '{name}' (ID: {asset.id}) ditambahkan")
 
-    print(f"\n✅ Asset berhasil ditambahkan! ID: {asset['id']}")
+    print(f"\n✅ Asset berhasil ditambahkan! ID: {asset.id}")
 
 def list_assets() -> None:
     print("\n" + "="*80)
@@ -585,22 +671,19 @@ def import_csv() -> None:
             def safe(val, default=""):
                 """Konversi None ke string kosong, lalu strip."""
                 return (val or default).strip()
-            asset = {
-                "id":            generate_id(),
-                "name":          nama,
-                "type":          safe(baris.get("type"), "Lainnya"),
-                "brand":         safe(baris.get("brand")),
-                "serial":        safe(baris.get("serial")),
-                "purchase_date": safe(baris.get("purchase_date")),
-                "location":      safe(baris.get("location")),
-                "pic":           safe(baris.get("pic")),
-                "status":        safe(baris.get("status"), "Aktif"),
-                "notes":         safe(baris.get("notes")),
-                "created_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "updated_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            }
+            asset = Asset(
+                name          = nama,
+                asset_type    = safe(baris.get("type"), "Lainnya"),
+                brand         = safe(baris.get("brand")),
+                serial        = safe(baris.get("serial")),
+                purchase_date = safe(baris.get("purchase_date")),
+                location      = safe(baris.get("location")),
+                pic           = safe(baris.get("pic")),
+                notes         = safe(baris.get("notes")),
+                status        = safe(baris.get("status"), "Aktif"),
+            )
 
-            berhasil.append(asset)
+            berhasil.append(asset.to_dict()) 
             nama_csv.add(nama.lower())   # catat nama ini sudah diproses
 
     # --- konfirmasi sebelum simpan ---
