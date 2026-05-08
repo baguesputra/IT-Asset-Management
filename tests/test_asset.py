@@ -1,8 +1,12 @@
-# test_asset.py
+# tests/test_asset.py
 
 import pytest
-import time
-from asset_manager import Asset, generate_id, load_assets, save_assets
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.models.asset import Asset, generate_id
 
 
 # ============================================================
