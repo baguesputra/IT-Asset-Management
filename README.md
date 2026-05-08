@@ -21,10 +21,10 @@ it-asset-management/
 
 ## ⚙️ Tech Stack
 
-- **Language** : Python 3.8+
-- **Storage**  : JSON (akan migrate ke SQLite)
-- **Pattern**  : MVC + Service Layer
-- **Test**     : pytest
+- **Language**  : Python 3.8+
+- **Storage**   : SQLite (via sqlite3 standard library)
+- **Pattern**   : MVC + Service Layer
+- **Test**      : pytest
 
 ---
 
@@ -95,8 +95,8 @@ pytest tests/ -v
 
 - [x] CLI dengan fitur lengkap
 - [x] Arsitektur MVC
-- [x] Unit testing
-- [ ] Migrate ke SQLite
+- [x] Unit testing dengan pytest  
+- [x] Migrate ke SQLite
 - [ ] Web interface dengan Flask
 - [ ] Deploy ke jaringan lokal RS
 - [ ] Login & role user

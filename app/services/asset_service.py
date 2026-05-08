@@ -151,18 +151,22 @@ def hapus_asset(asset_id: str) -> Optional[dict]:
 # ── Query & Filter ────────────────────────────────
 
 def cari_asset(keyword: str) -> list:
-    """Hapus asset berdasarkan ID."""
-    target = get_asset_by_id(asset_id)
-    if target is None:
-        return None
+    """Cari asset berdasarkan keyword."""
+    k      = f"%{keyword.lower()}%"
+    conn   = get_connection()
+    cursor = conn.execute("""
+        SELECT * FROM assets
+        WHERE LOWER(name)     LIKE ?
+           OR LOWER(type)     LIKE ?
+           OR LOWER(location) LIKE ?
+           OR LOWER(pic)      LIKE ?
+           OR LOWER(serial)   LIKE ?
+        ORDER BY name
+    """, (k, k, k, k, k))
 
-    conn = get_connection()
-    conn.execute("DELETE FROM assets WHERE id = ?", (asset_id,))
-    conn.commit()
+    results = [dict(row) for row in cursor.fetchall()]
     conn.close()
-
-    write_log("DELETE", f"Asset '{target['name']}' (ID: {asset_id}) dihapus")
-    return target
+    return results
 
 
 def filter_asset(key: str, nilai_list: list) -> list:
