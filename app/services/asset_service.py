@@ -3,7 +3,6 @@
 # File ini TIDAK boleh pakai input() atau print() —
 # hanya terima data, proses, return hasil.
 
-import json
 import csv
 import os
 import shutil
@@ -12,112 +11,139 @@ from collections import Counter
 from typing import Optional
 
 from config import (
-    DATA_FILE, LOG_FILE, BACKUP_DIR,
-    MAX_BACKUP, LOG_MAX_LINES
+   LOG_MAX_LINES,EXPORT_DIR
 )
 from app.models.asset import Asset
+from app.services.database import get_connection, init_db
 
+# inisialisasi database saat module pertama kali diimport
+init_db()
 
 # ── Storage ───────────────────────────────────────
 
-def load_assets() -> list:
-    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    if not os.path.exists(DATA_FILE):
-        return []
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
-
-
-def save_assets(assets: list) -> None:
-    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    with open(DATA_FILE, "w") as f:
-        json.dump(assets, f, indent=2, ensure_ascii=False)
-
-
 def write_log(action: str, detail: str) -> None:
-    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    """
+    Simpan log ke tabel activity_log di database.
+    Lebih rapi dari file .log — bisa di-query nanti.
+    """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] {action}: {detail}\n")
+    conn      = get_connection()
 
+    conn.execute(
+        # ? adalah placeholder — nilai diisi dari tuple di bawah
+        # JANGAN pernah pakai f-string untuk query SQL
+        # karena rentan SQL injection
+        "INSERT INTO activity_log (timestamp, action, detail) VALUES (?, ?, ?)",
+        (timestamp, action, detail)
+    )
 
-def backup_data() -> None:
-    if not os.path.exists(DATA_FILE):
-        return
-    os.makedirs(BACKUP_DIR, exist_ok=True)
-    timestamp   = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_path = os.path.join(BACKUP_DIR, f"assets_{timestamp}.json")
-    shutil.copy(DATA_FILE, backup_path)
-    semua_backup = sorted(os.listdir(BACKUP_DIR))
-    if len(semua_backup) > MAX_BACKUP:
-        for nama_file in semua_backup[:-MAX_BACKUP]:
-            os.remove(os.path.join(BACKUP_DIR, nama_file))
-
+    conn.commit()
+    conn.close()
 
 # ── CRUD ──────────────────────────────────────────
 
 def tambah_asset(data: dict) -> Asset:
-    """
-    Terima dictionary data, buat Asset, simpan.
-    Return objek Asset yang baru dibuat.
-    """
-    asset  = Asset(**data)
-    assets = load_assets()
-    assets.append(asset.to_dict())
-    backup_data()
-    save_assets(assets)
+    """Buat Asset baru dan simpan ke database."""
+    asset = Asset(**data)
+    conn  = get_connection()
+
+    conn.execute("""
+        INSERT INTO assets (
+            id, name, type, brand, serial, purchase_date,
+            location, pic, notes, status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        asset.id, asset.name, asset.type, asset.brand,
+        asset.serial, asset.purchase_date, asset.location,
+        asset.pic, asset.notes, asset.status,
+        asset.created_at, asset.updated_at
+    ))
+
+    conn.commit()
+    conn.close()
     write_log("ADD", f"Asset '{asset.name}' (ID: {asset.id}) ditambahkan")
     return asset
 
 
 def get_semua_asset() -> list:
-    """Return semua asset sebagai list of dict."""
-    return load_assets()
+    """Ambil semua asset dari database."""
+    conn   = get_connection()
+    cursor = conn.execute("SELECT * FROM assets ORDER BY created_at DESC")
+
+    # fetchall() ambil semua baris hasil query
+    # dict(row) konversi sqlite3.Row ke dictionary biasa
+    assets = [dict(row) for row in cursor.fetchall()]
+
+    conn.close()
+    return assets
 
 
 def get_asset_by_id(asset_id: str) -> Optional[dict]:
-    """Cari satu asset berdasarkan ID. Return None kalau tidak ketemu."""
-    assets = load_assets()
-    return next((a for a in assets if a["id"] == asset_id), None)
+    """Cari satu asset berdasarkan ID."""
+    conn   = get_connection()
+    cursor = conn.execute(
+        "SELECT * FROM assets WHERE id = ?",
+        (asset_id,)   # ← tuple dengan satu elemen, koma wajib ada
+    )
+
+    # fetchone() ambil satu baris saja
+    # return None kalau tidak ketemu
+    row = cursor.fetchone()
+    conn.close()
+
+    return dict(row) if row else None
 
 
 def update_asset(asset_id: str, perubahan: dict) -> Optional[dict]:
-    """
-    Update field yang ada di dictionary perubahan.
-    Return asset yang sudah diupdate, atau None kalau tidak ketemu.
-    """
-    assets = load_assets()
-    target = next((a for a in assets if a["id"] == asset_id), None)
+    """Update field yang tidak None di dictionary perubahan."""
+    target = get_asset_by_id(asset_id)
     if target is None:
         return None
 
     old_name = target["name"]
 
-    # hanya update field yang ada di perubahan
+    # bangun query dinamis — hanya update field yang tidak None
+    fields = []    # kolom yang akan diupdate
+    values = []    # nilai barunya
+
     for key, value in perubahan.items():
         if value is not None:
-            target[key] = value
+            fields.append(f"{key} = ?")
+            values.append(value)
 
-    target["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    backup_data()
-    save_assets(assets)
+    if not fields:
+        return target   # tidak ada yang berubah
+
+    # tambahkan updated_at
+    fields.append("updated_at = ?")
+    values.append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    # tambahkan id di akhir untuk WHERE clause
+    values.append(asset_id)
+
+    # gabungkan: "name = ?, status = ?, updated_at = ?"
+    query = f"UPDATE assets SET {', '.join(fields)} WHERE id = ?"
+
+    conn = get_connection()
+    conn.execute(query, values)
+    conn.commit()
+    conn.close()
+
     write_log("EDIT", f"Asset '{old_name}' (ID: {asset_id}) diperbarui")
-    return target
+    return get_asset_by_id(asset_id)
 
 
 def hapus_asset(asset_id: str) -> Optional[dict]:
-    """
-    Hapus asset berdasarkan ID.
-    Return asset yang dihapus, atau None kalau tidak ketemu.
-    """
-    assets = load_assets()
-    target = next((a for a in assets if a["id"] == asset_id), None)
+    """Hapus asset berdasarkan ID."""
+    target = get_asset_by_id(asset_id)
     if target is None:
         return None
 
-    assets = [a for a in assets if a["id"] != asset_id]
-    backup_data()
-    save_assets(assets)
+    conn = get_connection()
+    conn.execute("DELETE FROM assets WHERE id = ?", (asset_id,))
+    conn.commit()
+    conn.close()
+
     write_log("DELETE", f"Asset '{target['name']}' (ID: {asset_id}) dihapus")
     return target
 
@@ -125,46 +151,80 @@ def hapus_asset(asset_id: str) -> Optional[dict]:
 # ── Query & Filter ────────────────────────────────
 
 def cari_asset(keyword: str) -> list:
-    """Cari asset berdasarkan keyword di beberapa field."""
-    keyword = keyword.lower()
-    assets  = load_assets()
-    return [
-        a for a in assets
-        if keyword in a["name"].lower()
-        or keyword in a["type"].lower()
-        or keyword in a["location"].lower()
-        or keyword in a["pic"].lower()
-        or keyword in a.get("serial", "").lower()
-    ]
+    """Hapus asset berdasarkan ID."""
+    target = get_asset_by_id(asset_id)
+    if target is None:
+        return None
+
+    conn = get_connection()
+    conn.execute("DELETE FROM assets WHERE id = ?", (asset_id,))
+    conn.commit()
+    conn.close()
+
+    write_log("DELETE", f"Asset '{target['name']}' (ID: {asset_id}) dihapus")
+    return target
 
 
 def filter_asset(key: str, nilai_list: list) -> list:
-    """Filter asset berdasarkan key dan list nilai."""
-    assets = load_assets()
-    return [a for a in assets if a.get(key) in nilai_list]
+    """
+    Filter asset berdasarkan key dan beberapa nilai.
+    IN (?, ?, ?) = salah satu dari nilai ini.
+    """
+    # buat placeholder ? sebanyak jumlah nilai
+    # ["Aktif", "Rusak"] → "?, ?"
+    placeholders = ", ".join("?" * len(nilai_list))
+
+    conn   = get_connection()
+    cursor = conn.execute(
+        f"SELECT * FROM assets WHERE {key} IN ({placeholders})",
+        nilai_list
+    )
+
+    results = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return results
 
 
 def get_statistik() -> dict:
-    """Return dictionary berisi statistik asset."""
-    assets = load_assets()
-    if not assets:
+    """Ambil statistik langsung dari database pakai SQL."""
+    conn = get_connection()
+
+    # COUNT(*) hitung jumlah baris
+    total = conn.execute("SELECT COUNT(*) FROM assets").fetchone()[0]
+
+    if total == 0:
+        conn.close()
         return {}
 
-    hitung_status = Counter(a["status"] for a in assets)
-    hitung_lokasi = Counter(a["location"] for a in assets)
-    lokasi_teratas = hitung_lokasi.most_common(1)[0]
+    # GROUP BY — kelompokkan berdasarkan kolom, hitung tiap kelompok
+    cursor = conn.execute("""
+        SELECT status, COUNT(*) as jumlah
+        FROM assets
+        GROUP BY status
+    """)
+    per_status = {row["status"]: row["jumlah"] for row in cursor.fetchall()}
+
+    cursor = conn.execute("""
+        SELECT location, COUNT(*) as jumlah
+        FROM assets
+        GROUP BY location
+        ORDER BY jumlah DESC
+        LIMIT 1
+    """)
+    top = cursor.fetchone()
+    conn.close()
 
     return {
-        "total":          len(assets),
-        "per_status":     dict(hitung_status),
-        "lokasi_teratas": lokasi_teratas[0],
-        "lokasi_jumlah":  lokasi_teratas[1],
+        "total":          total,
+        "per_status":     per_status,
+        "lokasi_teratas": top["location"] if top else "-",
+        "lokasi_jumlah":  top["jumlah"] if top else 0,
     }
 
 
 def get_asset_tua(batas_tahun: int) -> list:
-    """Return list asset yang umurnya melebihi batas_tahun."""
-    assets = load_assets()
+    """Ambil asset yang umurnya melebihi batas_tahun."""
+    assets = get_semua_asset()
     hasil  = []
 
     for a in assets:
@@ -179,22 +239,28 @@ def get_asset_tua(batas_tahun: int) -> list:
 
 
 def get_log(n: int = LOG_MAX_LINES) -> list:
-    """Return n baris terakhir dari log."""
-    if not os.path.exists(LOG_FILE):
-        return []
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    return [line.strip() for line in lines[-n:]]
+    """Ambil n log aktivitas terakhir dari database."""
+    conn   = get_connection()
+    cursor = conn.execute("""
+        SELECT timestamp, action, detail
+        FROM activity_log
+        ORDER BY id DESC
+        LIMIT ?
+    """, (n,))
+
+    # format sama seperti file log lama
+    logs = [
+        f"[{row['timestamp']}] {row['action']}: {row['detail']}"
+        for row in cursor.fetchall()
+    ]
+    conn.close()
+    return logs
 
 
 # ── Export & Import ───────────────────────────────
 
 def export_ke_csv(export_dir: str) -> str:
-    """
-    Export semua asset ke CSV.
-    Return path file yang dibuat.
-    """
-    assets   = load_assets()
+    assets   = get_semua_asset()    # ← ganti ini
     os.makedirs(export_dir, exist_ok=True)
     filename = os.path.join(
         export_dir,
@@ -215,12 +281,8 @@ def export_ke_csv(export_dir: str) -> str:
 
 
 def import_dari_csv(path: str) -> dict:
-    """
-    Import asset dari file CSV.
-    Return dict berisi list berhasil dan list gagal.
-    """
     KOLOM_WAJIB     = ["name", "type", "location", "pic"]
-    assets_sekarang = load_assets()
+    assets_sekarang = get_semua_asset()    # ← ganti ini
     nama_existing   = {a["name"].lower() for a in assets_sekarang}
     berhasil        = []
     gagal           = []
@@ -255,24 +317,22 @@ def import_dari_csv(path: str) -> dict:
                 gagal.append(f"Baris {nomor}: '{nama}' sudah ada di data")
                 continue
 
-            asset = Asset(
-                name          = nama,
-                asset_type    = safe(baris.get("type"), "Lainnya"),
-                brand         = safe(baris.get("brand")),
-                serial        = safe(baris.get("serial")),
-                purchase_date = safe(baris.get("purchase_date")),
-                location      = safe(baris.get("location")),
-                pic           = safe(baris.get("pic")),
-                notes         = safe(baris.get("notes")),
-                status        = safe(baris.get("status"), "Aktif"),
-            )
-            berhasil.append(asset.to_dict())
-            nama_csv.add(nama.lower())
-
-    if berhasil:
-        assets_sekarang.extend(berhasil)
-        backup_data()
-        save_assets(assets_sekarang)
-        write_log("IMPORT", f"{len(berhasil)} asset diimport dari '{path}'")
+            # langsung simpan ke database lewat tambah_asset
+            try:
+                tambah_asset({
+                    "name":          nama,
+                    "asset_type":    safe(baris.get("type"), "Lainnya"),
+                    "brand":         safe(baris.get("brand")),
+                    "serial":        safe(baris.get("serial")),
+                    "purchase_date": safe(baris.get("purchase_date")),
+                    "location":      safe(baris.get("location")),
+                    "pic":           safe(baris.get("pic")),
+                    "notes":         safe(baris.get("notes")),
+                    "status":        safe(baris.get("status"), "Aktif"),
+                })
+                berhasil.append(nama)
+                nama_csv.add(nama.lower())
+            except Exception as e:
+                gagal.append(f"Baris {nomor}: error — {e}")
 
     return {"berhasil": berhasil, "gagal": gagal}

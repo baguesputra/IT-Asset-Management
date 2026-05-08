@@ -18,6 +18,7 @@ EXPORT_DIR = os.path.join(BASE_DIR, "exports")
 DATA_FILE  = os.path.join(DATA_DIR, "assets.json")
 LOG_FILE   = os.path.join(LOG_DIR, "activity.log")
 BACKUP_DIR = os.path.join(DATA_DIR, "backups")
+EXPORT_DIR = os.path.join(BASE_DIR, "exports")
 
 # ── Setting ───────────────────────────────────────
 MAX_BACKUP    = 10
