@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between">
+                <h5 class="mb-0">{{ asset.name }}</h5>
+                <code class="mt-1">{{ asset.id }}</code>
+            </div>
+            <div class="card-body">
+
+                <!-- badge status -->
+                <div class="mb-4">
+                    {% if asset.status == "Aktif" %}
+                        <span class="badge bg-success fs-6">{{ asset.status }}</span>
+                    {% elif asset.status == "Rusak" %}
+                        <span class="badge bg-danger fs-6">{{ asset.status }}</span>
+                    {% elif asset.status == "Perbaikan" %}
+                        <span class="badge bg-warning text-dark fs-6">{{ asset.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary fs-6">{{ asset.status }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- detail dalam tabel -->
+                <table class="table table-bordered">
+                    <tr>
+                        <th class="table-light" width="35%">Jenis</th>
+                        <td>{{ asset.type }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Merk / Model</th>
+                        <td>{{ asset.brand or '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Serial Number</th>
+                        <td>{{ asset.serial or '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Tanggal Pembelian</th>
+                        <td>{{ asset.purchase_date or '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Lokasi</th>
+                        <td>{{ asset.location }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">PIC</th>
+                        <td>{{ asset.pic }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Catatan</th>
+                        <td>{{ asset.notes or '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Dibuat</th>
+                        <td>{{ asset.created_at }}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">Terakhir Update</th>
+                        <td>{{ asset.updated_at }}</td>
+                    </tr>
+                </table>
+
+                <!-- tombol aksi -->
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/assets/edit/{{ asset.id }}"
+                       class="btn btn-warning">Edit Asset</a>
+
+                    <form action="/assets/hapus/{{ asset.id }}" method="POST"
+                          onsubmit="return confirm('Yakin hapus {{ asset.name }}?')">
+                        <button class="btn btn-danger">Hapus Asset</button>
+                    </form>
+
+                    <a href="/assets" class="btn btn-outline-secondary ms-auto">
+                        ← Kembali
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

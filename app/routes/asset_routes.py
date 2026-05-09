@@ -59,6 +59,58 @@ def tambah():
         locations   = LOCATIONS,
     )
 
+@asset_bp.route("/detail/<asset_id>")
+def detail(asset_id: str):
+    """Halaman detail satu asset."""
+    asset = get_asset_by_id(asset_id)
+    if asset is None:
+        flash("Asset tidak ditemukan.", "danger")
+        return redirect(url_for("assets.index"))
+    return render_template("assets/detail.html", asset=asset)
+
+
+@asset_bp.route("/edit/<asset_id>", methods=["GET", "POST"])
+def edit(asset_id: str):
+    """
+    GET  → tampilkan form edit dengan nilai saat ini
+    POST → proses perubahan dan simpan
+    """
+    asset = get_asset_by_id(asset_id)
+    if asset is None:
+        flash("Asset tidak ditemukan.", "danger")
+        return redirect(url_for("assets.index"))
+
+    if request.method == "POST":
+        # ambil semua field dari form
+        # request.form.get() tidak crash kalau field tidak ada
+        perubahan = {
+            "name":          request.form.get("name"),
+            "type":          request.form.get("type"),
+            "brand":         request.form.get("brand"),
+            "serial":        request.form.get("serial"),
+            "purchase_date": request.form.get("purchase_date"),
+            "location":      request.form.get("location"),
+            "pic":           request.form.get("pic"),
+            "notes":         request.form.get("notes"),
+            "status":        request.form.get("status"),
+        }
+
+        # hapus field yang kosong — tidak perlu diupdate
+        perubahan = {k: v for k, v in perubahan.items() if v}
+
+        update_asset(asset_id, perubahan)
+        flash(f"Asset berhasil diperbarui.", "success")
+        return redirect(url_for("assets.index"))
+
+    # GET → tampilkan form dengan data saat ini
+    return render_template(
+        "assets/edit.html",
+        asset       = asset,
+        asset_types = ASSET_TYPES,
+        asset_status = ASSET_STATUS,
+        locations   = LOCATIONS,
+    )
+
 
 @asset_bp.route("/cari")
 def cari():

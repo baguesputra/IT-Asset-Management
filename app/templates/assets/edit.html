@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between">
+                <h5 class="mb-0">Edit Asset</h5>
+                <code class="mt-1">{{ asset.id }}</code>
+            </div>
+            <div class="card-body">
+                <form action="/assets/edit/{{ asset.id }}" method="POST">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Asset *</label>
+                            <!-- value="{{ asset.name }}" isi form dengan data saat ini -->
+                            <input type="text" name="name" class="form-control"
+                                   value="{{ asset.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Jenis Asset *</label>
+                            <select name="type" class="form-select" required>
+                                {% for t in asset_types %}
+                                <!-- selected kalau nilainya sama dengan data saat ini -->
+                                <option value="{{ t }}"
+                                    {% if t == asset.type %}selected{% endif %}>
+                                    {{ t }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Merk / Model</label>
+                            <input type="text" name="brand" class="form-control"
+                                   value="{{ asset.brand }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Serial Number</label>
+                            <input type="text" name="serial" class="form-control"
+                                   value="{{ asset.serial }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tanggal Pembelian</label>
+                            <input type="date" name="purchase_date" class="form-control"
+                                   value="{{ asset.purchase_date }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Lokasi *</label>
+                            <select name="location" class="form-select" required>
+                                {% for loc in locations %}
+                                <option value="{{ loc }}"
+                                    {% if loc == asset.location %}selected{% endif %}>
+                                    {{ loc }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">PIC *</label>
+                            <input type="text" name="pic" class="form-control"
+                                   value="{{ asset.pic }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select">
+                                {% for s in asset_status %}
+                                <option value="{{ s }}"
+                                    {% if s == asset.status %}selected{% endif %}>
+                                    {{ s }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Catatan</label>
+                        <textarea name="notes" class="form-control"
+                                  rows="2">{{ asset.notes }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            Simpan Perubahan
+                        </button>
+                        <a href="/assets" class="btn btn-outline-secondary">
+                            Batal
+                        </a>
+                        <a href="/assets/detail/{{ asset.id }}"
+                           class="btn btn-outline-info ms-auto">
+                            Lihat Detail
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

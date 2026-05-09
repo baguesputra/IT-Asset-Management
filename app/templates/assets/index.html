@@ -100,11 +100,21 @@
                     </td>
                     <td>{{ a.pic }}</td>
                     <td>
-                        <!-- hapus pakai form POST — bukan link biasa -->
-                        <form action="/assets/hapus/{{ a.id }}" method="POST"
-                              onsubmit="return confirm('Yakin hapus {{ a.name }}?')">
-                            <button class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                        <div class="d-flex gap-1">
+                            <!-- tombol detail -->
+                            <a href="/assets/detail/{{ a.id }}"
+                            class="btn btn-info btn-sm text-white">Detail</a>
+
+                            <!-- tombol edit -->
+                            <a href="/assets/edit/{{ a.id }}"
+                            class="btn btn-warning btn-sm">Edit</a>
+
+                            <!-- tombol hapus -->
+                            <form action="/assets/hapus/{{ a.id }}" method="POST"
+                                onsubmit="return confirm('Yakin hapus {{ a.name }}?')">
+                                <button class="btn btn-danger btn-sm">Hapus</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
