@@ -40,3 +40,14 @@ LOCATIONS = [
     "Poli Umum", "IGD", "Radiologi", "Lab",
     "Farmasi", "Administrasi", "IT", "Gudang", "Lainnya"
 ]
+
+# config.py
+# tambahkan di bagian bawah
+
+# Credentials login
+# Di production sebaiknya disimpan di environment variable
+# dan password di-hash, bukan plain text
+USERS = {
+    "admin": "admin123",    # username: password
+    "it":    "it2024",
+}

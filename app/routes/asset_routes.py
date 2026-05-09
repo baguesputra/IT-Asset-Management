@@ -3,6 +3,7 @@
 # panggil service, return halaman HTML.
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from app.utils.auth import login_required
 from app.services.asset_service import (
     get_semua_asset, get_asset_by_id,
     tambah_asset, update_asset, hapus_asset,
@@ -18,6 +19,7 @@ asset_bp = Blueprint("assets", __name__, url_prefix="/assets")
 
 
 @asset_bp.route("/")
+@login_required 
 def index():
     """Halaman utama — daftar semua asset."""
     assets = get_semua_asset()
@@ -26,6 +28,7 @@ def index():
 
 
 @asset_bp.route("/tambah", methods=["GET", "POST"])
+@login_required 
 def tambah():
     """
     GET  → tampilkan form tambah asset
@@ -61,6 +64,7 @@ def tambah():
     )
 
 @asset_bp.route("/detail/<asset_id>")
+@login_required 
 def detail(asset_id: str):
     """Halaman detail satu asset."""
     asset = get_asset_by_id(asset_id)
@@ -71,6 +75,7 @@ def detail(asset_id: str):
 
 
 @asset_bp.route("/edit/<asset_id>", methods=["GET", "POST"])
+@login_required 
 def edit(asset_id: str):
     """
     GET  → tampilkan form edit dengan nilai saat ini
@@ -114,6 +119,7 @@ def edit(asset_id: str):
 
 
 @asset_bp.route("/cari")
+@login_required 
 def cari():
     """Cari asset berdasarkan keyword dari URL parameter."""
     # /assets/cari?q=IGD → keyword = "IGD"
@@ -123,6 +129,7 @@ def cari():
 
 
 @asset_bp.route("/hapus/<asset_id>", methods=["POST"])
+@login_required 
 def hapus(asset_id: str):
     """Hapus asset — hanya terima POST request."""
     target = hapus_asset(asset_id)
@@ -158,6 +165,7 @@ def filter_view():
 
 
 @asset_bp.route("/statistik")
+@login_required 
 def statistik():
     """Halaman statistik lengkap."""
     from app.services.asset_service import get_asset_tua, get_log
