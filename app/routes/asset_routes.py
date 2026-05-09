@@ -1,0 +1,80 @@
+# app/routes/asset_routes.py
+# Tanggung jawab: handle request dari browser,
+# panggil service, return halaman HTML.
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from app.services.asset_service import (
+    get_semua_asset, get_asset_by_id,
+    tambah_asset, update_asset, hapus_asset,
+    cari_asset, filter_asset, get_statistik
+)
+from config import ASSET_TYPES, ASSET_STATUS, LOCATIONS
+
+# Blueprint = kumpulan route yang bisa didaftarkan ke app
+# "assets" = nama blueprint
+# url_prefix = semua route di sini diawali /assets
+asset_bp = Blueprint("assets", __name__, url_prefix="/assets")
+
+
+@asset_bp.route("/")
+def index():
+    """Halaman utama — daftar semua asset."""
+    assets = get_semua_asset()
+    stats  = get_statistik()
+    return render_template("assets/index.html", assets=assets, stats=stats)
+
+
+@asset_bp.route("/tambah", methods=["GET", "POST"])
+def tambah():
+    """
+    GET  → tampilkan form tambah asset
+    POST → proses form yang dikirim user
+    """
+    if request.method == "POST":
+        # ambil data dari form HTML
+        # request.form["name"] = nilai input dengan name="name"
+        data = {
+            "name":          request.form["name"],
+            "asset_type":    request.form["type"],
+            "brand":         request.form["brand"],
+            "serial":        request.form["serial"],
+            "purchase_date": request.form["purchase_date"],
+            "location":      request.form["location"],
+            "pic":           request.form["pic"],
+            "notes":         request.form.get("notes", ""),
+        }
+
+        asset = tambah_asset(data)
+
+        # flash = pesan sementara yang muncul sekali
+        flash(f"Asset '{asset.name}' berhasil ditambahkan! ID: {asset.id}", "success")
+
+        # redirect ke halaman daftar setelah berhasil
+        return redirect(url_for("assets.index"))
+
+    # GET request → tampilkan form kosong
+    return render_template(
+        "assets/tambah.html",
+        asset_types = ASSET_TYPES,
+        locations   = LOCATIONS,
+    )
+
+
+@asset_bp.route("/cari")
+def cari():
+    """Cari asset berdasarkan keyword dari URL parameter."""
+    # /assets/cari?q=IGD → keyword = "IGD"
+    keyword = request.args.get("q", "").strip()
+    results = cari_asset(keyword) if keyword else []
+    return render_template("assets/cari.html", results=results, keyword=keyword)
+
+
+@asset_bp.route("/hapus/<asset_id>", methods=["POST"])
+def hapus(asset_id: str):
+    """Hapus asset — hanya terima POST request."""
+    target = hapus_asset(asset_id)
+    if target:
+        flash(f"Asset '{target['name']}' berhasil dihapus.", "warning")
+    else:
+        flash("Asset tidak ditemukan.", "danger")
+    return redirect(url_for("assets.index"))

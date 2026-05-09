@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Tambah Asset Baru</h5>
+            </div>
+            <div class="card-body">
+                <form action="/assets/tambah" method="POST">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Asset *</label>
+                            <input type="text" name="name" class="form-control"
+                                   placeholder="contoh: PC-IGD-01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Jenis Asset *</label>
+                            <select name="type" class="form-select" required>
+                                <option value="">-- Pilih Jenis --</option>
+                                {% for t in asset_types %}
+                                <option value="{{ t }}">{{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Merk / Model</label>
+                            <input type="text" name="brand" class="form-control"
+                                   placeholder="contoh: HP EliteDesk 800">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Serial Number</label>
+                            <input type="text" name="serial" class="form-control"
+                                   placeholder="contoh: SN-HP-2024-001">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tanggal Pembelian</label>
+                            <input type="date" name="purchase_date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Lokasi *</label>
+                            <select name="location" class="form-select" required>
+                                <option value="">-- Pilih Lokasi --</option>
+                                {% for loc in locations %}
+                                <option value="{{ loc }}">{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">PIC (Penanggung Jawab) *</label>
+                        <input type="text" name="pic" class="form-control"
+                               placeholder="contoh: Budi Santoso" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Catatan</label>
+                        <textarea name="notes" class="form-control" rows="2"
+                                  placeholder="Catatan tambahan (opsional)"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Simpan Asset
+                        </button>
+                        <a href="/assets" class="btn btn-outline-secondary">
+                            Batal
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
