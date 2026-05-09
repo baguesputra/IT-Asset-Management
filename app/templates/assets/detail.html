@@ -2,84 +2,120 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-dark text-white d-flex justify-content-between">
-                <h5 class="mb-0">{{ asset.name }}</h5>
-                <code class="mt-1">{{ asset.id }}</code>
-            </div>
-            <div class="card-body">
+    <div class="col-md-9 col-lg-12">
+        
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/assets" class="text-decoration-none text-muted">Daftar Asset</a></li>
+                <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Detail Asset</li>
+            </ol>
+        </nav>
 
-                <!-- badge status -->
-                <div class="mb-4">
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <!-- Header dengan gradien halus -->
+            <div class="card-header bg-dark bg-gradient py-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info rounded-3 p-2 me-3 text-white">
+                        <i class="fas fa-desktop fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 text-white fw-bold">{{ asset.name }}</h5>
+                        <small class="text-info opacity-75">ID: {{ asset.id }}</small>
+                    </div>
+                </div>
+                <div>
                     {% if asset.status == "Aktif" %}
-                        <span class="badge bg-success fs-6">{{ asset.status }}</span>
+                        <span class="badge rounded-pill bg-success px-3 py-2"><i class="fas fa-check-circle me-1"></i> {{ asset.status }}</span>
                     {% elif asset.status == "Rusak" %}
-                        <span class="badge bg-danger fs-6">{{ asset.status }}</span>
+                        <span class="badge rounded-pill bg-danger px-3 py-2"><i class="fas fa-times-circle me-1"></i> {{ asset.status }}</span>
                     {% elif asset.status == "Perbaikan" %}
-                        <span class="badge bg-warning text-dark fs-6">{{ asset.status }}</span>
+                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2"><i class="fas fa-tools me-1"></i> {{ asset.status }}</span>
                     {% else %}
-                        <span class="badge bg-secondary fs-6">{{ asset.status }}</span>
+                        <span class="badge rounded-pill bg-secondary px-3 py-2">{{ asset.status }}</span>
                     {% endif %}
                 </div>
+            </div>
 
-                <!-- detail dalam tabel -->
-                <table class="table table-bordered">
-                    <tr>
-                        <th class="table-light" width="35%">Jenis</th>
-                        <td>{{ asset.type }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Merk / Model</th>
-                        <td>{{ asset.brand or '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Serial Number</th>
-                        <td>{{ asset.serial or '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Tanggal Pembelian</th>
-                        <td>{{ asset.purchase_date or '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Lokasi</th>
-                        <td>{{ asset.location }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">PIC</th>
-                        <td>{{ asset.pic }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Catatan</th>
-                        <td>{{ asset.notes or '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Dibuat</th>
-                        <td>{{ asset.created_at }}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-light">Terakhir Update</th>
-                        <td>{{ asset.updated_at }}</td>
-                    </tr>
-                </table>
-
-                <!-- tombol aksi -->
-                <div class="d-flex gap-2 mt-3">
-                    <a href="/assets/edit/{{ asset.id }}"
-                       class="btn btn-warning">Edit Asset</a>
-
-                    <form action="/assets/hapus/{{ asset.id }}" method="POST"
-                          onsubmit="return confirm('Yakin hapus {{ asset.name }}?')">
-                        <button class="btn btn-danger">Hapus Asset</button>
-                    </form>
-
-                    <a href="/assets" class="btn btn-outline-secondary ms-auto">
-                        ← Kembali
-                    </a>
+            <div class="card-body p-0">
+                <!-- Info Utama Grid -->
+                <div class="row g-0 border-bottom">
+                    <div class="col-md-4 border-end bg-light p-4">
+                        <label class="small text-uppercase fw-bold text-muted d-block mb-1">Jenis Asset</label>
+                        <p class="h6 fw-bold mb-0 text-dark">{{ asset.type }}</p>
+                    </div>
+                    <div class="col-md-4 border-end bg-light p-4">
+                        <label class="small text-uppercase fw-bold text-muted d-block mb-1">Lokasi</label>
+                        <p class="h6 fw-bold mb-0 text-dark"><i class="fas fa-map-marker-alt text-primary me-1"></i> {{ asset.location }}</p>
+                    </div>
+                    <div class="col-md-4 bg-light p-4">
+                        <label class="small text-uppercase fw-bold text-muted d-block mb-1">Penanggung Jawab</label>
+                        <p class="h6 fw-bold mb-0 text-dark"><i class="fas fa-user-tie text-muted me-1"></i> {{ asset.pic }}</p>
+                    </div>
                 </div>
 
+                <!-- Detail Teknis -->
+                <div class="p-4">
+                    <h6 class="fw-bold mb-3 text-muted text-uppercase small">Informasi Teknis</h6>
+                    <div class="row gy-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <label class="d-block small text-muted">Merk / Model</label>
+                                <span class="fw-semibold">{{ asset.brand or '---' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <label class="d-block small text-muted">Serial Number</label>
+                                <code class="text-dark fw-bold">{{ asset.serial or '---' }}</code>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <label class="d-block small text-muted">Tanggal Pembelian</label>
+                                <span class="fw-semibold"><i class="far fa-calendar-alt me-1 text-muted"></i> {{ asset.purchase_date or '---' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded-3 bg-white">
+                                <label class="d-block small text-muted">Riwayat Update</label>
+                                <span class="small text-muted">{{ asset.updated_at }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Section -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-2 text-muted text-uppercase small">Catatan Internal</h6>
+                        <div class="bg-light p-3 rounded-3 border-start border-primary border-4">
+                            <p class="mb-0 text-dark italic">{{ asset.notes or 'Tidak ada catatan tambahan.' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="card-footer bg-white py-3 px-4 d-flex align-items-center">
+                <div class="d-flex gap-2">
+                    <a href="/assets/edit/{{ asset.id }}" class="btn btn-warning px-4 shadow-sm">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <form action="/assets/hapus/{{ asset.id }}" method="POST"
+                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus asset {{ asset.name }}?')">
+                        <button class="btn btn-outline-danger px-4">
+                            <i class="fas fa-trash-alt me-2"></i>Hapus
+                        </button>
+                    </form>
+                </div>
+                <a href="/assets" class="btn btn-link text-decoration-none text-muted ms-auto">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+                </a>
             </div>
         </div>
+
+        <p class="text-center text-muted small mt-4">
+            Aset ini didaftarkan pada sistem pada <span class="fw-bold">{{ asset.created_at }}</span>
+        </p>
     </div>
 </div>
 {% endblock %}

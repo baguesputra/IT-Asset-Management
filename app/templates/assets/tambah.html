@@ -2,24 +2,40 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Tambah Asset Baru</h5>
+    <div class="col-md-8 col-lg-12">
+        <!-- Breadcrumb Nav -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/assets" class="text-decoration-none">Daftar Asset</a></li>
+                <li class="breadcrumb-item active">Tambah Asset</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-dark py-3">
+                <h5 class="mb-0 text-white fw-bold">
+                    <i class="fas fa-plus-circle me-2 text-info"></i>Registrasi Asset Baru
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-4">Silakan lengkapi formulir di bawah ini. Tanda (*) menunjukkan kolom yang wajib diisi.</p>
+                
                 <form action="/assets/tambah" method="POST">
 
+                    <!-- Section 1: Identitas Utama -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Nama Asset *</label>
-                            <input type="text" name="name" class="form-control"
-                                   placeholder="contoh: PC-IGD-01" required>
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Nama Asset *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-tag text-muted"></i></span>
+                                <input type="text" name="name" class="form-control"
+                                       placeholder="Contoh: PC-IGD-01" required>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Jenis Asset *</label>
+                            <label class="form-label fw-bold small text-uppercase text-muted">Jenis Asset *</label>
                             <select name="type" class="form-select" required>
-                                <option value="">-- Pilih Jenis --</option>
+                                <option value="" selected disabled>-- Pilih Jenis --</option>
                                 {% for t in asset_types %}
                                 <option value="{{ t }}">{{ t }}</option>
                                 {% endfor %}
@@ -27,28 +43,35 @@
                         </div>
                     </div>
 
+                    <!-- Section 2: Spesifikasi -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Merk / Model</label>
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Merk / Model</label>
                             <input type="text" name="brand" class="form-control"
-                                   placeholder="contoh: HP EliteDesk 800">
+                                   placeholder="Contoh: HP EliteDesk 800">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Serial Number</label>
+                            <label class="form-label fw-bold small text-uppercase text-muted">Serial Number</label>
                             <input type="text" name="serial" class="form-control"
-                                   placeholder="contoh: SN-HP-2024-001">
+                                   placeholder="Contoh: SN-HP-2024-001">
                         </div>
                     </div>
 
+                    <hr class="my-4 opacity-25">
+
+                    <!-- Section 3: Penempatan & Tanggal -->
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Tanggal Pembelian</label>
-                            <input type="date" name="purchase_date" class="form-control">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Tanggal Pembelian</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                <input type="date" name="purchase_date" class="form-control">
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Lokasi *</label>
+                            <label class="form-label fw-bold small text-uppercase text-muted">Lokasi Penempatan *</label>
                             <select name="location" class="form-select" required>
-                                <option value="">-- Pilih Lokasi --</option>
+                                <option value="" selected disabled>-- Pilih Lokasi --</option>
                                 {% for loc in locations %}
                                 <option value="{{ loc }}">{{ loc }}</option>
                                 {% endfor %}
@@ -56,29 +79,42 @@
                         </div>
                     </div>
 
+                    <!-- Section 4: Penanggung Jawab -->
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">PIC (Penanggung Jawab) *</label>
-                        <input type="text" name="pic" class="form-control"
-                               placeholder="contoh: Budi Santoso" required>
+                        <label class="form-label fw-bold small text-uppercase text-muted">PIC (Penanggung Jawab) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+                            <input type="text" name="pic" class="form-control"
+                                   placeholder="Nama lengkap penanggung jawab" required>
+                        </div>
                     </div>
 
+                    <!-- Section 5: Catatan -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">Catatan</label>
-                        <textarea name="notes" class="form-control" rows="2"
-                                  placeholder="Catatan tambahan (opsional)"></textarea>
+                        <label class="form-label fw-bold small text-uppercase text-muted">Catatan Tambahan</label>
+                        <textarea name="notes" class="form-control" rows="3"
+                                  placeholder="Spesifikasi teknis singkat atau kondisi awal asset..."></textarea>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            Simpan Asset
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 pt-2">
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                            <i class="fas fa-save me-2"></i>Simpan Asset
                         </button>
-                        <a href="/assets" class="btn btn-outline-secondary">
+                        <a href="/assets" class="btn btn-outline-secondary px-4">
                             Batal
                         </a>
                     </div>
 
                 </form>
             </div>
+        </div>
+        
+        <!-- Info Footer -->
+        <div class="mt-4 text-center">
+            <p class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i> Data yang disimpan akan langsung tercatat dalam sistem inventaris.
+            </p>
         </div>
     </div>
 </div>

@@ -4,47 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IT Asset Management</title>
-    <!-- Bootstrap CSS — styling siap pakai -->
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.08); }
+        .card { border-radius: 12px; transition: transform 0.2s; }
+        .table thead th { background-color: #f1f3f5; color: #495057; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        .btn { border-radius: 8px; font-weight: 600; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-dark navbar-expand bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 p-3">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/assets">
-                🖥️ IT Asset Management
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/assets">
+                <i class="fas fa-laptop-code me-2 text-info"></i> IT ASSET
             </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <div class="navbar-nav ms-auto d-flex align-items-center gap-3">
-                <a class="nav-link text-white" href="/assets">Asset</a>
-                <a class="nav-link text-white" href="/assets/filter">Filter</a>
-                <a class="nav-link text-white" href="/assets/statistik">Statistik</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/assets"><i class="fas fa-box me-1"></i> Asset</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/assets/filter"><i class="fas fa-filter me-1"></i> Filter</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/assets/statistik"><i class="fas fa-chart-pie me-1"></i> Statistik</a></li>
+                </ul>
 
-                <!-- tampilkan username dan tombol logout -->
-                {% if session.get("logged_in") %}
-                <span class="text-secondary small">
-                    👤 {{ session.get("username") }}
-                </span>
-                <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
-                {% endif %}
+                <div class="navbar-nav align-items-center gap-3">
+                    {% if session.get("logged_in") %}
+                    <span class="nav-item text-light opacity-75 small">
+                        <i class="fas fa-user-circle me-1"></i> {{ session.get("username") }}
+                    </span>
+                    <a href="/logout" class="btn btn-outline-danger btn-sm px-3">Logout</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-
-        <!-- Flash messages — pesan sukses/error -->
+    <div class="container pb-5">
+        <!-- Flash messages -->
         {% for category, message in get_flashed_messages(with_categories=true) %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show">
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
 
-        <!-- konten tiap halaman masuk di sini -->
+        <!-- Konten -->
         {% block content %}{% endblock %}
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

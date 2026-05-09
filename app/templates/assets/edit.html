@@ -2,29 +2,46 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-warning text-dark d-flex justify-content-between">
-                <h5 class="mb-0">Edit Asset</h5>
-                <code class="mt-1">{{ asset.id }}</code>
-            </div>
-            <div class="card-body">
-                <form action="/assets/edit/{{ asset.id }}" method="POST">
+    <div class="col-md-9 col-lg-12">
+        
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/assets" class="text-decoration-none text-muted">Daftar Asset</a></li>
+                <li class="breadcrumb-item"><a href="/assets/detail/{{ asset.id }}" class="text-decoration-none text-muted">Detail</a></li>
+                <li class="breadcrumb-item active text-warning fw-bold">Edit Asset</li>
+            </ol>
+        </nav>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Nama Asset *</label>
-                            <!-- value="{{ asset.name }}" isi form dengan data saat ini -->
-                            <input type="text" name="name" class="form-control"
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <!-- Header dengan aksen warna warning -->
+            <div class="card-header bg-warning py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-edit me-2"></i>Perbarui Data Asset
+                </h5>
+                <code class="bg-dark text-warning px-2 py-1 rounded small">{{ asset.id }}</code>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="alert alert-light border-start border-warning border-4 mb-4 small text-muted">
+                    <i class="fas fa-info-circle me-2 text-warning"></i> 
+                    Perubahan pada data ini akan langsung memperbarui catatan pada database utama dan riwayat inventaris.
+                </div>
+
+                <form action="/assets/edit/{{ asset.id }}" method="POST">
+                    
+                    <!-- Row 1: Identitas Aset -->
+                    <div class="row mb-4">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Nama Asset *</label>
+                            <input type="text" name="name" class="form-control form-control-lg shadow-sm"
                                    value="{{ asset.name }}" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Jenis Asset *</label>
-                            <select name="type" class="form-select" required>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Kategori / Jenis *</label>
+                            <select name="type" class="form-select form-control-lg" required>
                                 {% for t in asset_types %}
-                                <!-- selected kalau nilainya sama dengan data saat ini -->
-                                <option value="{{ t }}"
-                                    {% if t == asset.type %}selected{% endif %}>
+                                <option value="{{ t }}" {% if t == asset.type %}selected{% endif %}>
                                     {{ t }}
                                 </option>
                                 {% endfor %}
@@ -32,78 +49,91 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- Row 2: Spesifikasi -->
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Merk / Model</label>
-                            <input type="text" name="brand" class="form-control"
-                                   value="{{ asset.brand }}">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Merk / Model</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fas fa-industry"></i></span>
+                                <input type="text" name="brand" class="form-control" value="{{ asset.brand }}">
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Serial Number</label>
-                            <input type="text" name="serial" class="form-control"
-                                   value="{{ asset.serial }}">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Serial Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fas fa-barcode"></i></span>
+                                <input type="text" name="serial" class="form-control" value="{{ asset.serial }}">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Tanggal Pembelian</label>
-                            <input type="date" name="purchase_date" class="form-control"
-                                   value="{{ asset.purchase_date }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Lokasi *</label>
+                    <hr class="my-4 opacity-25">
+
+                    <!-- Row 3: Logistik & Status -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Lokasi Penempatan *</label>
                             <select name="location" class="form-select" required>
                                 {% for loc in locations %}
-                                <option value="{{ loc }}"
-                                    {% if loc == asset.location %}selected{% endif %}>
+                                <option value="{{ loc }}" {% if loc == asset.location %}selected{% endif %}>
                                     {{ loc }}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">PIC *</label>
-                            <input type="text" name="pic" class="form-control"
-                                   value="{{ asset.pic }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Status</label>
-                            <select name="status" class="form-select">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Status Aset</label>
+                            <select name="status" class="form-select border-warning">
                                 {% for s in asset_status %}
-                                <option value="{{ s }}"
-                                    {% if s == asset.status %}selected{% endif %}>
+                                <option value="{{ s }}" {% if s == asset.status %}selected{% endif %}>
                                     {{ s }}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Tanggal Perolehan</label>
+                            <input type="date" name="purchase_date" class="form-control" value="{{ asset.purchase_date }}">
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Catatan</label>
-                        <textarea name="notes" class="form-control"
-                                  rows="2">{{ asset.notes }}</textarea>
+                    <!-- Row 4: PIC & Catatan -->
+                    <div class="row mb-4">
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label fw-bold small text-uppercase text-muted">PIC (Penanggung Jawab) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fas fa-user-check"></i></span>
+                                <input type="text" name="pic" class="form-control" value="{{ asset.pic }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Catatan Tambahan</label>
+                            <textarea name="notes" class="form-control" rows="3">{{ asset.notes }}</textarea>
+                        </div>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-warning">
-                            Simpan Perubahan
+                    <!-- Action Buttons -->
+                    <div class="d-flex align-items-center gap-2 pt-3 border-top mt-4">
+                        <button type="submit" class="btn btn-warning px-4 fw-bold">
+                            <i class="fas fa-save me-2"></i>Simpan Perubahan
                         </button>
-                        <a href="/assets" class="btn btn-outline-secondary">
+                        <a href="/assets/detail/{{ asset.id }}" class="btn btn-outline-secondary px-4">
                             Batal
                         </a>
-                        <a href="/assets/detail/{{ asset.id }}"
-                           class="btn btn-outline-info ms-auto">
-                            Lihat Detail
-                        </a>
+                        
+                        <div class="ms-auto">
+                            <a href="/assets" class="text-muted small text-decoration-none">
+                                <i class="fas fa-list me-1"></i> Kembali ke Daftar
+                            </a>
+                        </div>
                     </div>
 
                 </form>
             </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted small">Terakhir diperbarui pada: <span class="fw-bold">{{ asset.updated_at }}</span></p>
         </div>
     </div>
 </div>

@@ -4,55 +4,259 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login — IT Asset Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: #0c0e14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 700px; height: 700px;
+            top: -250px; right: -200px;
+            background: radial-gradient(circle, rgba(180,153,100,0.07) 0%, transparent 68%);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 500px; height: 500px;
+            bottom: -200px; left: -120px;
+            background: radial-gradient(circle, rgba(100,130,180,0.06) 0%, transparent 68%);
+            pointer-events: none;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem 1.25rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ── Brand Header ── */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #b49964, #d4b87a);
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 24px rgba(180,153,100,0.18);
+        }
+
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px;
+            font-weight: 600;
+            color: #f0ead8;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: #4a5062;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+
+        /* ── Card ── */
+        .login-card {
+            background: #13161f;
+            border: 0.5px solid #252934;
+            border-radius: 18px;
+            padding: 2.25rem 2rem;
+        }
+
+        .card-eyebrow {
+            font-size: 10.5px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #b49964;
+            font-weight: 500;
+            margin-bottom: 1.75rem;
+        }
+
+        /* ── Flash Messages ── */
+        .alert {
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 1.25rem;
+            border: 0.5px solid;
+        }
+
+        .alert-danger, .alert-error {
+            background: rgba(227,75,75,0.08);
+            border-color: rgba(227,75,75,0.25);
+            color: #e88080;
+        }
+
+        .alert-success {
+            background: rgba(90,175,120,0.08);
+            border-color: rgba(90,175,120,0.25);
+            color: #7ecba0;
+        }
+
+        .alert-warning {
+            background: rgba(200,160,70,0.08);
+            border-color: rgba(200,160,70,0.25);
+            color: #d4b870;
+        }
+
+        /* ── Form Fields ── */
+        .field-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 10.5px;
+            color: #4a5062;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            font-weight: 400;
+            margin-bottom: 9px;
+        }
+
+        .field-input {
+            width: 100%;
+            background: #0c0e14;
+            border: 0.5px solid #252934;
+            border-radius: 9px;
+            padding: 12px 15px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: #d8d2c4;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .field-input:focus {
+            border-color: rgba(180,153,100,0.55);
+        }
+
+        .field-input::placeholder {
+            color: #2e333f;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 0.5px;
+            background: #1e2230;
+            margin: 1.75rem 0;
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #b49964 0%, #c9aa72 100%);
+            border: none;
+            border-radius: 9px;
+            padding: 13px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0c0e14;
+            letter-spacing: 0.07em;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.15s ease;
+        }
+
+        .btn-submit:hover  { opacity: 0.87; }
+        .btn-submit:active { transform: scale(0.99); opacity: 0.80; }
+
+        /* ── Footer ── */
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            color: #2c303a;
+            letter-spacing: 0.07em;
+            margin-top: 1.5rem;
+        }
+
+        .footer-note span {
+            margin: 0 6px;
+            opacity: 0.5;
+        }
+    </style>
 </head>
-<body class="bg-dark">
+<body>
 
-<div class="min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="col-md-4">
+<div class="login-wrapper">
 
-        <!-- header -->
-        <div class="text-center mb-4">
-            <h4 class="text-white fw-bold">🖥️ IT Asset Management</h4>
-            <p class="text-secondary">Sistem Inventaris Aset IT RS</p>
-        </div>
-
-        <!-- card login -->
-        <div class="card border-0 shadow-lg">
-            <div class="card-body p-4">
-                <h5 class="card-title mb-4 fw-bold">Login</h5>
-
-                <!-- flash messages -->
-                {% for category, message in get_flashed_messages(with_categories=true) %}
-                <div class="alert alert-{{ category }} py-2">{{ message }}</div>
-                {% endfor %}
-
-                <form action="/login" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Username</label>
-                        <input type="text" name="username"
-                               class="form-control" autofocus required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password"
-                               class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        Masuk
-                    </button>
-                </form>
-
-            </div>
-        </div>
-
-        <p class="text-center text-secondary mt-3 small">
-            IT Department · {{ 2024 }}
-        </p>
-
+    <!-- Brand -->
+    <div class="brand-header">
+        <div class="brand-icon">🖥️</div>
+        <p class="brand-name">IT Asset Management</p>
+        <p class="brand-sub">Sistem Inventaris Aset IT RS</p>
     </div>
+
+    <!-- Card -->
+    <div class="login-card">
+        <p class="card-eyebrow">Masuk ke akun Anda</p>
+
+        <!-- Flash Messages -->
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+
+        <form action="/login" method="POST">
+            <div class="field-group">
+                <label class="field-label" for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="field-input"
+                    placeholder="Masukkan username"
+                    autofocus
+                    required>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="field-input"
+                    placeholder="••••••••"
+                    required>
+            </div>
+
+            <div class="divider"></div>
+
+            <button type="submit" class="btn-submit">Masuk</button>
+        </form>
+    </div>
+
+    <p class="footer-note">
+        IT Department <span>·</span> {{ 2024 }}
+    </p>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
