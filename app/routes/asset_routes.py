@@ -6,7 +6,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.asset_service import (
     get_semua_asset, get_asset_by_id,
     tambah_asset, update_asset, hapus_asset,
-    cari_asset, filter_asset, get_statistik
+    cari_asset, filter_asset, get_statistik,
+    get_asset_tua, get_log
 )
 from config import ASSET_TYPES, ASSET_STATUS, LOCATIONS
 
@@ -130,3 +131,52 @@ def hapus(asset_id: str):
     else:
         flash("Asset tidak ditemukan.", "danger")
     return redirect(url_for("assets.index"))
+
+@asset_bp.route("/filter")
+def filter_view():
+    """
+    Halaman filter asset by status atau lokasi.
+    Parameter diambil dari URL:
+    /assets/filter?kategori=status&nilai=Aktif&nilai=Rusak
+    """
+    kategori   = request.args.get("kategori", "")
+    nilai_list = request.args.getlist("nilai")  # getlist = ambil semua nilai dengan nama sama
+
+    results = []
+    if kategori and nilai_list:
+        key     = "status" if kategori == "Status" else "location"
+        results = filter_asset(key, nilai_list)
+
+    return render_template(
+        "assets/filter.html",
+        results      = results,
+        kategori     = kategori,
+        nilai_list   = nilai_list,
+        asset_status = ASSET_STATUS,
+        locations    = LOCATIONS,
+    )
+
+
+@asset_bp.route("/statistik")
+def statistik():
+    """Halaman statistik lengkap."""
+    from app.services.asset_service import get_asset_tua, get_log
+    from config import ASSET_STATUS, LOCATIONS
+
+    stats        = get_statistik()
+    semua_assets = get_semua_asset()
+    asset_tua    = get_asset_tua(3)   # asset lebih dari 3 tahun
+    logs         = get_log(10)        # 10 log terakhir
+
+    # hitung jumlah asset per lokasi untuk tabel
+    from collections import Counter
+    per_lokasi = Counter(a["location"] for a in semua_assets)
+    per_lokasi = sorted(per_lokasi.items(), key=lambda x: x[1], reverse=True)
+
+    return render_template(
+        "assets/statistik.html",
+        stats      = stats,
+        asset_tua  = asset_tua,
+        logs       = logs,
+        per_lokasi = per_lokasi,
+    )

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h5 class="fw-bold mb-4">📊 Statistik Asset</h5>
+
+<!-- Kartu ringkasan -->
+{% if stats %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-4">
+                <h2 class="fw-bold text-primary">{{ stats.total }}</h2>
+                <div class="text-muted">Total Asset</div>
+            </div>
+        </div>
+    </div>
+    {% for status, jumlah in stats.per_status.items() %}
+    <div class="col-md-3 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-4">
+                {% if status == "Aktif" %}
+                    <h2 class="fw-bold text-success">{{ jumlah }}</h2>
+                {% elif status == "Rusak" %}
+                    <h2 class="fw-bold text-danger">{{ jumlah }}</h2>
+                {% elif status == "Perbaikan" %}
+                    <h2 class="fw-bold text-warning">{{ jumlah }}</h2>
+                {% else %}
+                    <h2 class="fw-bold text-secondary">{{ jumlah }}</h2>
+                {% endif %}
+                <div class="text-muted">{{ status }}</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+
+    <!-- Asset per lokasi -->
+    <div class="col-md-5 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">Asset per Lokasi</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Lokasi</th>
+                            <th class="text-end">Jumlah</th>
+                            <th>Proporsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lokasi, jumlah in per_lokasi %}
+                        <tr>
+                            <td>{{ lokasi }}</td>
+                            <td class="text-end">{{ jumlah }}</td>
+                            <td>
+                                <!-- progress bar proporsi -->
+                                {% if stats.total > 0 %}
+                                {% set persen = (jumlah / stats.total * 100) | int %}
+                                <div class="progress" style="height:8px">
+                                    <div class="progress-bar bg-primary"
+                                         style="width: {{ persen }}%"></div>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset tua -->
+    <div class="col-md-7 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">⚠ Asset Lebih dari 3 Tahun</h6>
+            </div>
+            {% if asset_tua %}
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nama</th>
+                            <th>Umur</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in asset_tua %}
+                        {% set a = item.asset %}
+                        {% set tahun = item.umur | int %}
+                        {% set bulan = ((item.umur - tahun) * 12) | int %}
+                        <tr>
+                            <td>
+                                <a href="/assets/detail/{{ a.id }}"
+                                   class="text-decoration-none">
+                                    {{ a.name }}
+                                </a>
+                            </td>
+                            <td>{{ tahun }} thn {{ bulan }} bln</td>
+                            <td>{{ a.location }}</td>
+                            <td>
+                                {% if a.status == "Aktif" %}
+                                    <span class="badge bg-success">{{ a.status }}</span>
+                                {% elif a.status == "Rusak" %}
+                                    <span class="badge bg-danger">{{ a.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ a.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body text-muted text-center py-4">
+                Tidak ada asset yang lebih dari 3 tahun.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Log aktivitas -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-dark text-white">
+        <h6 class="mb-0">Log Aktivitas Terakhir</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if logs %}
+        <ul class="list-group list-group-flush">
+            {% for log in logs %}
+            <li class="list-group-item font-monospace small">{{ log }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-muted text-center py-3">Belum ada log.</div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
