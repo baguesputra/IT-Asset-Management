@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Header Info Asset -->
+<div class="card border-0 shadow-sm mb-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="d-flex flex-column flex-md-row">
+            <!-- Sisi Kiri: Info Utama -->
+            <div class="p-4 flex-grow-1">
+                <div class="d-flex align-items-center mb-2">
+                    <h4 class="fw-bold mb-0 me-3">{{ asset.name }}</h4>
+                    {% if asset.status == "Aktif" %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
+                    {% elif asset.status == "Rusak" %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Rusak</span>
+                    {% else %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ asset.status }}</span>
+                    {% endif %}
+                </div>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-tag me-1"></i> {{ asset.type }} &nbsp;·&nbsp; 
+                    <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ asset.location }} &nbsp;·&nbsp; 
+                    <i class="fas fa-user me-1 text-primary"></i> PIC: {{ asset.pic }}
+                </p>
+            </div>
+            <!-- Sisi Kanan: Action & Total -->
+            <div class="bg-light p-4 text-md-end d-flex flex-md-column justify-content-center border-start">
+                <div class="mb-md-2 me-3 me-md-0">
+                    <a href="/assets/detail/{{ asset.id }}" class="btn btn-white btn-sm border shadow-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Detail Asset
+                    </a>
+                </div>
+                {% if total_biaya > 0 %}
+                <div>
+                    <small class="text-muted d-block">Total Investasi Servis</small>
+                    <span class="fw-bold text-primary">Rp {{ "{:,}".format(total_biaya) }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- Form Tambah Servis -->
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Catat Servis Baru
+                </h6>
+            </div>
+            <div class="card-body">
+                <form action="/servis/tambah/{{ asset.id }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tanggal Servis</label>
+                        <input type="date" name="tanggal" class="form-control form-control-sm shadow-sm" value="{{ today }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Kategori Servis</label>
+                        <select name="jenis" class="form-select form-select-sm shadow-sm" required>
+                            <option value="">-- Pilih Jenis --</option>
+                            {% for j in jenis_servis %}
+                            <option value="{{ j }}">{{ j }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Uraian Pekerjaan</label>
+                        <textarea name="deskripsi" class="form-control form-control-sm shadow-sm" rows="3" required placeholder="Contoh: Penggantian pasta thermal dan pembersihan debu..."></textarea>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-7">
+                            <label class="form-label small fw-bold">Teknisi</label>
+                            <input type="text" name="teknisi" class="form-control form-control-sm shadow-sm" placeholder="Nama" required>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label small fw-bold">Biaya (Rp)</label>
+                            <input type="number" name="biaya" class="form-control form-control-sm shadow-sm" placeholder="0" min="0">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 shadow">
+                        <i class="fas fa-save me-2"></i>Simpan Catatan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Riwayat Servis -->
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Riwayat Aktivitas</h6>
+            <span class="badge bg-dark rounded-pill ms-2">{{ riwayat | length }} Log</span>
+        </div>
+
+        {% if riwayat %}
+        <div class="timeline-container ps-3">
+            {% for s in riwayat %}
+            <div class="position-relative border-start border-2 ps-4 pb-4">
+                <!-- Dot Timeline -->
+                <div class="position-absolute bg-primary rounded-circle" style="width: 12px; height: 12px; left: -7px; top: 5px; border: 2px solid white;"></div>
+                
+                <div class="card border-0 shadow-sm animate__animated animate__fadeIn">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-primary-subtle text-primary xsmall mb-1">{{ s.jenis }}</span>
+                                <p class="mb-1 text-dark fw-medium">{{ s.deskripsi }}</p>
+                            </div>
+                            <form action="/servis/hapus/{{ s.id }}" method="POST" onsubmit="return confirm('Hapus catatan servis ini?')">
+                                <button class="btn btn-link text-danger btn-sm p-0">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap gap-3 mt-3 pt-2 border-top">
+                            <div class="small text-muted">
+                                <i class="far fa-calendar-alt me-1 text-info"></i> {{ s.tanggal }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="far fa-user me-1 text-info"></i> {{ s.teknisi }}
+                            </div>
+                            {% if s.biaya > 0 %}
+                            <div class="small fw-bold text-success">
+                                <i class="fas fa-coins me-1"></i> Rp {{ "{:,}".format(s.biaya) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-tools fa-3x text-light mb-3"></i>
+                <h6 class="text-muted">Belum ada riwayat perbaikan</h6>
+                <p class="small text-muted mb-0">Semua aktivitas maintenance akan tercatat secara kronologis di sini.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Styling tambahan untuk detail kecil */
+    .xsmall { font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .btn-white { background: #fff; }
+    .timeline-container { border-color: #dee2e6 !important; }
+</style>
+
+{% endblock %}

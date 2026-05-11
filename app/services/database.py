@@ -21,6 +21,8 @@ def get_connection() -> sqlite3.Connection:
     os.makedirs(os.path.dirname(DB_FILE), exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row   # ← ini penting
+    # aktifkan foreign key — penting untuk relasi antar tabel
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 
@@ -60,6 +62,23 @@ def init_db() -> None:
             timestamp  TEXT NOT NULL,
             action     TEXT NOT NULL,
             detail     TEXT NOT NULL
+        )
+    """)
+
+    # tabel baru — riwayat servis
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS servis (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            asset_id    TEXT NOT NULL,
+            tanggal     TEXT NOT NULL,
+            jenis       TEXT NOT NULL,
+            deskripsi   TEXT NOT NULL,
+            teknisi     TEXT NOT NULL,
+            biaya       INTEGER DEFAULT 0,
+            created_at  TEXT NOT NULL,
+
+            -- foreign key — asset_id harus ada di tabel assets
+            FOREIGN KEY (asset_id) REFERENCES assets(id)
         )
     """)
 
