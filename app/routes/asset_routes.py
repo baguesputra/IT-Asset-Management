@@ -2,7 +2,7 @@
 # Tanggung jawab: handle request dari browser,
 # panggil service, return halaman HTML.
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify 
 from app.utils.auth import login_required, admin_required
 from app.services.asset_service import (
     get_semua_asset, get_asset_by_id,
@@ -187,4 +187,59 @@ def statistik():
         asset_tua  = asset_tua,
         logs       = logs,
         per_lokasi = per_lokasi,
+    )
+
+
+@asset_bp.route("/api/statistik")
+@login_required
+def api_statistik():
+    """
+    Return data statistik dalam format JSON.
+    Dikonsumsi Chart.js di browser — bukan untuk manusia.
+    """
+    assets = get_semua_asset()
+
+    # hitung per status
+    from collections import Counter
+    per_status = Counter(a["status"] for a in assets)
+    per_lokasi = Counter(a["location"] for a in assets)
+    per_jenis  = Counter(a["type"] for a in assets)
+
+    return jsonify({
+        "per_status": {
+            "labels": list(per_status.keys()),
+            "data":   list(per_status.values()),
+        },
+        "per_lokasi": {
+            "labels": list(per_lokasi.keys()),
+            "data":   list(per_lokasi.values()),
+        },
+        "per_jenis": {
+            "labels": list(per_jenis.keys()),
+            "data":   list(per_jenis.values()),
+        },
+        "total": len(assets),
+    })
+
+
+@asset_bp.route("/dashboard")
+@login_required
+def dashboard():
+    """Halaman dashboard dengan chart visual."""
+    stats  = get_statistik()
+    assets = get_semua_asset()
+
+    # data untuk tabel ringkasan
+    from collections import Counter
+    per_lokasi = sorted(
+        Counter(a["location"] for a in assets).items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return render_template(
+        "assets/dashboard.html",
+        stats      = stats,
+        per_lokasi = per_lokasi,
+        total      = len(assets),
     )

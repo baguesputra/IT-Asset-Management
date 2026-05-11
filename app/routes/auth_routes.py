@@ -35,7 +35,7 @@ def login():
             session["nama"]      = user["nama"]
 
             flash(f"Selamat datang, {username}!", "success")
-            return redirect(url_for("assets.index"))
+            return redirect(url_for("assets.dashboard"))
 
         # username atau password salah
         flash("Username atau password salah.", "danger")
