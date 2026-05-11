@@ -1,108 +1,121 @@
 # 🖥️ IT Asset Management System
 
-Sistem manajemen aset IT berbasis CLI untuk lingkungan rumah sakit / klinik.  
-Dibangun dengan **Pure Python** menggunakan arsitektur **MVC**.
+A CLI-based IT asset management system designed for hospital / clinic environments.  
+Built with **Pure Python** using an **MVC architecture**.
 
 ---
 
-## 🏗️ Arsitektur
+## 🏗️ Architecture
+
+```text
 it-asset-management/
 ├── app/
-│   ├── models/          → Struktur data (class Asset)
-│   ├── services/        → Logika bisnis (CRUD, filter, export)
+│   ├── models/          → Data structures (Asset class)
+│   ├── services/        → Business logic (CRUD, filtering, export)
 │   └── utils/           → Helper functions (input validation)
 ├── cli/
-│   └── main.py          → Interface terminal
-├── tests/               → Unit test (pytest)
-├── config.py            → Konfigurasi terpusat
-└── seed_data.py         → Data contoh
+│   └── main.py          → Terminal interface
+├── tests/               → Unit tests (pytest)
+├── config.py            → Centralized configuration
+└── seed_data.py         → Sample data
+```
 
 ---
 
 ## ⚙️ Tech Stack
 
 - **Language**  : Python 3.8+
-- **Storage**   : SQLite (via sqlite3 standard library)
+- **Storage**   : SQLite (via the built-in `sqlite3` library)
 - **Pattern**   : MVC + Service Layer
-- **Test**      : pytest
+- **Testing**   : pytest
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🚀 How to Run
 
-### 1. Clone repository
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/USERNAME/it-asset-management.git
 cd it-asset-management
 ```
 
 ### 2. Install dependencies
+
 ```bash
 pip install pytest
 ```
 
-### 3. Isi data contoh (opsional)
+### 3. Seed sample data (Optional)
+
 ```bash
 python seed_data.py
 ```
 
-### 4. Jalankan aplikasi
+### 4. Run the application
+
 ```bash
 python cli/main.py
 ```
 
-### 5. Jalankan test
+### 5. Run tests
+
 ```bash
 pytest tests/ -v
 ```
 
 ---
 
-## ✅ Fitur
+## ✅ Features
 
-### CRUD
-- Tambah asset dengan wizard input step by step
-- Lihat semua asset dalam format tabel
-- Cari asset berdasarkan keyword
-- Edit asset — semua field opsional
-- Hapus asset dengan konfirmasi
+### CRUD Operations
 
-### Filter & Monitoring
-- Filter by status atau lokasi — bisa multi-select
-- Statistik ringkas tampil otomatis di menu utama
-- Reminder asset tua — tentukan batas tahun sendiri
+- Add assets using a step-by-step input wizard
+- View all assets in a table format
+- Search assets by keyword
+- Edit assets — all fields are optional
+- Delete assets with confirmation
+
+### Filtering & Monitoring
+
+- Filter by status or location — supports multi-select
+- Automatic summary statistics on the main menu
+- Old asset reminders — define your own year threshold
+- Statistics dashboard
 
 ### Import & Export
-- Export ke CSV — siap buka di Excel
-- Import dari CSV — validasi duplikat dan kolom wajib
-- Backup otomatis setiap ada perubahan data
 
-### Sistem
-- Log aktivitas dengan timestamp
-- Auto-backup — simpan 10 backup terakhir
+- Export to CSV — ready to open in Excel
+- Import from CSV — duplicate and required-column validation
+- Automatic backup whenever data changes
+
+### System Features
+
+- Activity logging with timestamps
+- Auto-backup — stores the latest 10 backups
 
 ---
 
-## 🧠 Konsep Python yang Digunakan
+## 🧠 Python Concepts Used
 
-`OOP` · `MVC Architecture` · `Type Hints` · `pytest` ·
-`try/except` · `list comprehension` · `collections.Counter` ·
+`OOP` · `MVC Architecture` · `Type Hints` · `pytest` ·  
+`try/except` · `list comprehension` · `collections.Counter` ·  
 `datetime` · `csv` · `json` · `shutil` · `os.path`
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] CLI dengan fitur lengkap
-- [x] Arsitektur MVC
-- [x] Unit testing dengan pytest  
-- [x] Migrate ke SQLite
-- [ ] Web interface dengan Flask
-- [ ] Deploy ke jaringan lokal RS
-- [ ] Login & role user
+- [x] Full-featured CLI
+- [x] MVC architecture
+- [x] Unit testing with pytest
+- [x] Migration to SQLite
+- [x] Web interface using Flask
+- [ ] Deployment to the hospital local network
+- [ ] User login & role management
 
 ---
 
 ## 👨‍💻 Author
 
-Dibuat untuk kebutuhan manajemen aset IT rumah sakit.
+Created for hospital IT asset management needs.
