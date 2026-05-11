@@ -56,9 +56,11 @@
         <p class="text-muted small mb-0">Kelola dan pantau seluruh aset IT perusahaan</p>
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        {% if is_admin %}
         <a href="/assets/tambah" class="btn btn-primary shadow-sm px-4">
             <i class="fas fa-plus me-2"></i>Tambah Asset
         </a>
+        {% endif %}
     </div>
 </div>
 
@@ -116,6 +118,7 @@
                             <a href="/assets/detail/{{ a.id }}" class="btn btn-light btn-sm text-info" title="Detail">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            {% if is_admin %}
                             <a href="/assets/edit/{{ a.id }}" class="btn btn-light btn-sm text-warning" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -124,6 +127,7 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

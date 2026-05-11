@@ -43,6 +43,13 @@
                 <div class="navbar-nav align-items-center gap-3">
                     {% if session.get("logged_in") %}
                     <span class="nav-item text-light opacity-75 small">
+                        {{ current_user }}
+                        <!-- tampilkan badge role -->
+                        {% if current_role == "admin" %}
+                            <span class="badge bg-danger ms-1">Admin</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-1">Viewer</span>
+                        {% endif %}
                         <i class="fas fa-user-circle me-1"></i> {{ session.get("username") }}
                     </span>
                     <a href="/logout" class="btn btn-outline-danger btn-sm px-3">Logout</a>

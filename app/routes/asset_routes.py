@@ -3,7 +3,7 @@
 # panggil service, return halaman HTML.
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.utils.auth import login_required
+from app.utils.auth import login_required, admin_required
 from app.services.asset_service import (
     get_semua_asset, get_asset_by_id,
     tambah_asset, update_asset, hapus_asset,
@@ -28,7 +28,7 @@ def index():
 
 
 @asset_bp.route("/tambah", methods=["GET", "POST"])
-@login_required 
+@admin_required
 def tambah():
     """
     GET  → tampilkan form tambah asset
@@ -75,7 +75,7 @@ def detail(asset_id: str):
 
 
 @asset_bp.route("/edit/<asset_id>", methods=["GET", "POST"])
-@login_required 
+@admin_required 
 def edit(asset_id: str):
     """
     GET  → tampilkan form edit dengan nilai saat ini
@@ -129,7 +129,7 @@ def cari():
 
 
 @asset_bp.route("/hapus/<asset_id>", methods=["POST"])
-@login_required 
+@admin_required 
 def hapus(asset_id: str):
     """Hapus asset — hanya terima POST request."""
     target = hapus_asset(asset_id)

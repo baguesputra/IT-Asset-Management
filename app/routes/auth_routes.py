@@ -24,11 +24,15 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
+        user = USERS.get(username)
+
         # cek apakah username ada dan password cocok
-        if USERS.get(username) == password:
+        if user and user["password"] == password:
             # simpan info login ke session
             session["logged_in"] = True
             session["username"]  = username
+            session["role"]      = user["role"]
+            session["nama"]      = user["nama"]
 
             flash(f"Selamat datang, {username}!", "success")
             return redirect(url_for("assets.index"))

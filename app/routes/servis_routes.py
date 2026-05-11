@@ -11,6 +11,7 @@ from app.services.servis_service import (
     hapus_servis, get_total_biaya, JENIS_SERVIS
 )
 from datetime import date
+from app.utils.auth import login_required, admin_required
 
 servis_bp = Blueprint("servis", __name__, url_prefix="/servis")
 
@@ -38,7 +39,7 @@ def riwayat(asset_id: str):
 
 
 @servis_bp.route("/tambah/<asset_id>", methods=["POST"])
-@login_required
+@admin_required
 def tambah(asset_id: str):
     """Tambah catatan servis baru — hanya POST."""
     asset = get_asset_by_id(asset_id)
@@ -60,7 +61,7 @@ def tambah(asset_id: str):
 
 
 @servis_bp.route("/hapus/<int:servis_id>", methods=["POST"])
-@login_required
+@admin_required
 def hapus(servis_id: int):
     """Hapus satu catatan servis."""
     # ambil asset_id dulu untuk redirect balik
