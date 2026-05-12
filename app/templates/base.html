@@ -53,7 +53,31 @@
                         {% endif %}
                         <i class="fas fa-user-circle me-1"></i> {{ session.get("username") }}
                     </span>
-                    <a href="/logout" class="btn btn-outline-danger btn-sm px-3">Logout</a>
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle"
+                            data-bs-toggle="dropdown">
+                        Menu
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if current_role == "admin" %}
+                        <li>
+                            <a class="dropdown-item" href="/users">
+                                👥 Manajemen User
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item" href="/users/ganti-password">
+                                🔑 Ganti Password
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/logout">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
                     {% endif %}
                 </div>
             </div>

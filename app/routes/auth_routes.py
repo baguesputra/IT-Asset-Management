@@ -5,7 +5,7 @@ from flask import (
     Blueprint, render_template, request,
     redirect, url_for, session, flash
 )
-from config import USERS
+from app.services.user_service import verifikasi_login
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -24,20 +24,18 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
-        user = USERS.get(username)
+        # verifikasi lewat database — bukan config
+        user = verifikasi_login(username, password)
 
-        # cek apakah username ada dan password cocok
-        if user and user["password"] == password:
-            # simpan info login ke session
+        if user:
             session["logged_in"] = True
-            session["username"]  = username
+            session["username"]  = user["username"]
             session["role"]      = user["role"]
             session["nama"]      = user["nama"]
 
-            flash(f"Selamat datang, {username}!", "success")
-            return redirect(url_for("assets.dashboard"))
+            flash(f"Selamat datang, {user['nama']}!", "success")
+            return redirect(url_for("assets.index"))
 
-        # username atau password salah
         flash("Username atau password salah.", "danger")
 
     return render_template("auth/login.html")
@@ -46,10 +44,7 @@ def login():
 @auth_bp.route("/logout")
 def logout():
     """Hapus session dan redirect ke login."""
-    username = session.get("username", "")
-
-    # clear() hapus semua data di session
+    nama = session.get("nama", "")
     session.clear()
-
-    flash(f"Sampai jumpa, {username}!", "info")
+    flash(f"Sampai jumpa, {nama}!", "info")
     return redirect(url_for("auth.login"))

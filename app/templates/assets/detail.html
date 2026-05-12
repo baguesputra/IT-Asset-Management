@@ -100,6 +100,9 @@
                     <a href="/servis/asset/{{ asset.id }}" class="btn btn-info px-4 shadow-sm">
                         <i class="fas fa-history me-2"></i>Riwayat Servis
                     </a>
+                    <a href="/assets/pdf/{{ asset.id }}" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-file me-2"></i>Pdf
+                    </a>
                     {% if is_admin %}
                     <a href="/assets/edit/{{ asset.id }}" class="btn btn-warning px-4 shadow-sm">
                         <i class="fas fa-edit me-2"></i>Edit

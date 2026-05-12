@@ -2,7 +2,7 @@
 # Tanggung jawab: handle request dari browser,
 # panggil service, return halaman HTML.
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify 
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response 
 from app.utils.auth import login_required, admin_required
 from app.services.asset_service import (
     get_semua_asset, get_asset_by_id,
@@ -10,7 +10,12 @@ from app.services.asset_service import (
     cari_asset, filter_asset, get_statistik,
     get_asset_tua, get_log
 )
+from app.services.pdf_service import (
+    generate_laporan_asset,
+    generate_laporan_semua
+)
 from config import ASSET_TYPES, ASSET_STATUS, LOCATIONS
+from datetime import datetime
 
 # Blueprint = kumpulan route yang bisa didaftarkan ke app
 # "assets" = nama blueprint
@@ -262,3 +267,55 @@ def api_cari():
 
     # batasi 20 hasil
     return jsonify(results[:20])
+
+@asset_bp.route("/pdf/<asset_id>")
+@login_required
+def pdf_asset(asset_id: str):
+    """
+    Generate dan download PDF untuk satu asset.
+    Response dengan header khusus supaya browser
+    otomatis download file — bukan tampilkan di tab.
+    """
+    from app.services.servis_service import get_servis_by_asset
+
+    asset   = get_asset_by_id(asset_id)
+    if asset is None:
+        flash("Asset tidak ditemukan.", "danger")
+        return redirect(url_for("assets.index"))
+
+    riwayat = get_servis_by_asset(asset_id)
+
+    # generate PDF
+    pdf_bytes = generate_laporan_asset(asset, riwayat)
+
+    # nama file PDF
+    nama_file = f"laporan_{asset['name']}_{datetime.now().strftime('%Y%m%d')}.pdf"
+
+    # Response dengan header yang memberitahu browser
+    # ini file yang harus didownload, bukan ditampilkan
+    return Response(
+        pdf_bytes,
+        mimetype    = "application/pdf",
+        headers     = {
+            "Content-Disposition": f"attachment; filename={nama_file}"
+        }
+    )
+
+
+@asset_bp.route("/pdf-semua")
+@admin_required
+def pdf_semua():
+    """Generate dan download PDF laporan semua asset."""
+    from datetime import datetime
+
+    assets    = get_semua_asset()
+    pdf_bytes = generate_laporan_semua(assets)
+    nama_file = f"laporan_semua_asset_{datetime.now().strftime('%Y%m%d')}.pdf"
+
+    return Response(
+        pdf_bytes,
+        mimetype = "application/pdf",
+        headers  = {
+            "Content-Disposition": f"attachment; filename={nama_file}"
+        }
+    )

@@ -57,6 +57,9 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0">
         {% if is_admin %}
+        <a href="/assets/pdf-semua" class="btn btn-danger shadow-sm px-4">
+            <i class="fas fa-file me-2"> Pdf</i>
+        </a>
         <a href="/assets/tambah" class="btn btn-primary shadow-sm px-4">
             <i class="fas fa-plus me-2"></i>Tambah Asset
         </a>
@@ -71,7 +74,6 @@
             <span class="input-group-text bg-transparent border-0" id="loadingIndicator"><i class="fas fa-search text-muted"></i></span>
             <input type="text" id="inputCari" class="form-control border-0 shadow-none" autocomplete="off"
                     placeholder="Cari berdasarkan nama, lokasi, atau PIC...">
-            <button class="btn btn-dark px-4" type="submit">Cari</button>
         </div>
         <div id="infoHasil" class="form-text text-muted"></div>
     </div>
@@ -219,28 +221,34 @@
 
         // render baris tabel dari data JSON
         tabelBody.innerHTML = assets.map(a => `
-            <tr>
-                <td><code>${a.id}</code></td>
-                <td>${a.name}</td>
-                <td>${a.type}</td>
-                <td>${a.location}</td>
-                <td>${badgeStatus(a.status)}</td>
-                <td>${a.pic}</td>
-                <td>
-                    <div class="d-flex gap-1">
-                        <a href="/assets/detail/${a.id}"
-                        class="btn btn-info btn-sm text-white">Detail</a>
-                        ${isAdmin ? `
-                            <a href="/assets/edit/${a.id}"
-                            class="btn btn-warning btn-sm">Edit</a>
-                            <form action="/assets/hapus/${a.id}" method="POST"
-                                onsubmit="return confirm('Yakin hapus ${a.name}?')">
-                                <button class="btn btn-danger btn-sm">Hapus</button>
-                            </form>
-                        ` : ""}
-                    </div>
-                </td>
-            </tr>
+             <tr>
+            <td class="ps-4 text-muted small">#${a.id}</td>
+            <td><span class="fw-semibold">${a.name}</span></td>
+            <td><span class="badge bg-light text-dark border">${a.type}</span></td>
+            <td><i class="fas fa-map-marker-alt text-muted me-1 small"></i> ${a.location}</td>
+            <td>${badgeStatus(a.status)}</td>
+            <td>${a.pic}</td>
+            <td>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="/assets/detail/${a.id}"
+                       class="btn btn-light btn-sm text-info" title="Detail">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    ${isAdmin ? `
+                        <a href="/assets/edit/${a.id}"
+                           class="btn btn-light btn-sm text-warning" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="/assets/hapus/${a.id}" method="POST"
+                              onsubmit="return confirm('Hapus aset ini?')">
+                            <button class="btn btn-light btn-sm text-danger" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    ` : ""}
+                </div>
+            </td>
+        </tr>
         `).join("");
     }
 

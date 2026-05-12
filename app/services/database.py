@@ -82,8 +82,21 @@ def init_db() -> None:
         )
     """)
 
+    # Tabel Users untuk autentikasi
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        username   TEXT NOT NULL UNIQUE,
+        password   TEXT NOT NULL,
+        nama       TEXT NOT NULL,
+        role       TEXT NOT NULL DEFAULT 'viewer',
+        created_at TEXT NOT NULL
+    )
+    """)
+
     # commit = simpan perubahan ke file
     conn.commit()
 
     # selalu tutup koneksi setelah selesai
     conn.close()
+

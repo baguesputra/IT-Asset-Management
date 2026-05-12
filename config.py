@@ -43,24 +43,3 @@ LOCATIONS = [
 
 # config.py
 # tambahkan di bagian bawah
-
-# Credentials login
-# Di production sebaiknya disimpan di environment variable
-# dan password di-hash, bukan plain text
-USERS = {
-    "admin": {
-        "password": "admin123",
-        "role":     "admin",
-        "nama":     "Administrator",
-    },
-    "it": {
-        "password": "it123",
-        "role":     "admin",
-        "nama":     "Staff IT",
-    },
-    "viewer": {
-        "password": "123",
-        "role":     "viewer",
-        "nama":     "Viewer",
-    },
-}
