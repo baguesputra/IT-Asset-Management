@@ -67,14 +67,13 @@
 <!-- Search Bar -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-2">
-        <form action="/assets/cari" method="GET">
-            <div class="input-group">
-                <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" name="q" class="form-control border-0 shadow-none" 
-                       placeholder="Cari berdasarkan nama, lokasi, atau PIC...">
-                <button class="btn btn-dark px-4" type="submit">Cari</button>
-            </div>
-        </form>
+        <div class="input-group">
+            <span class="input-group-text bg-transparent border-0" id="loadingIndicator"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="inputCari" class="form-control border-0 shadow-none" autocomplete="off"
+                    placeholder="Cari berdasarkan nama, lokasi, atau PIC...">
+            <button class="btn btn-dark px-4" type="submit">Cari</button>
+        </div>
+        <div id="infoHasil" class="form-text text-muted"></div>
     </div>
 </div>
 
@@ -94,7 +93,7 @@
                     <th class="text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tabelBody">
                 {% for a in assets %}
                 <tr>
                     <td class="ps-4 text-muted small">#{{ a.id }}</td>
@@ -149,5 +148,121 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+    const inputCari       = document.getElementById("inputCari");
+    const tabelBody       = document.getElementById("tabelBody");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const infoHasil       = document.getElementById("infoHasil");
+
+    // simpan konten tabel asli — untuk restore kalau input dikosongkan
+    const kontenAsli = tabelBody.innerHTML;
+    const totalAsli  = {{ assets | length }};
+
+    // debounce — tunggu user berhenti mengetik 300ms baru fetch
+    let debounceTimer;
+
+    inputCari.addEventListener("input", function() {
+        const keyword = this.value.trim();
+
+        // batal timer sebelumnya
+        clearTimeout(debounceTimer);
+
+        // kalau input kosong — kembalikan tabel asli
+        if (keyword === "") {
+            tabelBody.innerHTML = kontenAsli;
+            infoHasil.textContent = "";
+            return;
+        }
+
+        // tunggu 300ms setelah berhenti mengetik
+        debounceTimer = setTimeout(() => {
+            cariaset(keyword);
+        }, 300);
+    });
+
+
+    function cariaset(keyword) {
+        // tampilkan loading spinner
+        loadingIndicator.style.display = "flex";
+        infoHasil.textContent = "Mencari...";
+
+        fetch(`/assets/api/cari?q=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                loadingIndicator.style.display = "none";
+                renderHasil(data, keyword);
+            })
+            .catch(err => {
+                loadingIndicator.style.display = "none";
+                infoHasil.textContent = "Gagal melakukan pencarian.";
+                console.error(err);
+            });
+    }
+
+
+    function renderHasil(assets, keyword) {
+        // update info hasil
+        if (assets.length === 0) {
+            infoHasil.textContent = `Tidak ada hasil untuk "${keyword}"`;
+            tabelBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        Tidak ada asset yang cocok dengan "<strong>${keyword}</strong>"
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        infoHasil.textContent = `${assets.length} hasil ditemukan`;
+
+        // render baris tabel dari data JSON
+        tabelBody.innerHTML = assets.map(a => `
+            <tr>
+                <td><code>${a.id}</code></td>
+                <td>${a.name}</td>
+                <td>${a.type}</td>
+                <td>${a.location}</td>
+                <td>${badgeStatus(a.status)}</td>
+                <td>${a.pic}</td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="/assets/detail/${a.id}"
+                        class="btn btn-info btn-sm text-white">Detail</a>
+                        ${isAdmin ? `
+                            <a href="/assets/edit/${a.id}"
+                            class="btn btn-warning btn-sm">Edit</a>
+                            <form action="/assets/hapus/${a.id}" method="POST"
+                                onsubmit="return confirm('Yakin hapus ${a.name}?')">
+                                <button class="btn btn-danger btn-sm">Hapus</button>
+                            </form>
+                        ` : ""}
+                    </div>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+
+    function badgeStatus(status) {
+        const warna = {
+            "Aktif":       "success",
+            "Rusak":       "danger",
+            "Perbaikan":   "warning",
+            "Tidak Aktif": "secondary",
+            "Dipinjam":    "info",
+        };
+        const kelas = warna[status] || "secondary";
+        const teks  = status === "Perbaikan"
+                    ? `text-dark` : ``;
+        return `<span class="badge bg-${kelas} ${teks}">${status}</span>`;
+    }
+
+
+    // kirim variabel is_admin dari Flask ke JavaScript
+    // Jinja2 render ini saat halaman dimuat
+    const isAdmin = {{ "true" if is_admin else "false" }};
+</script>
 
 {% endblock %}

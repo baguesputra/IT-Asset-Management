@@ -243,3 +243,22 @@ def dashboard():
         per_lokasi = per_lokasi,
         total      = len(assets),
     )
+
+@asset_bp.route("/api/cari")
+@login_required
+def api_cari():
+    """
+    API endpoint untuk pencarian live.
+    Return JSON — dikonsumsi JavaScript, bukan browser langsung.
+
+    URL: /assets/api/cari?q=keyword
+    """
+    keyword = request.args.get("q", "").strip()
+
+    if not keyword:
+        return jsonify([])
+    
+    results = cari_asset(keyword)
+
+    # batasi 20 hasil
+    return jsonify(results[:20])
