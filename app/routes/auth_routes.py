@@ -6,7 +6,9 @@ from flask import (
     redirect, url_for, session, flash
 )
 from app.services.user_service import verifikasi_login
+from app.utils.logger import get_logger
 
+logger  = get_logger("auth")    # logger khusus modul auth
 auth_bp = Blueprint("auth", __name__)
 
 
@@ -23,6 +25,7 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
+        ip       = request.remote_addr
 
         # verifikasi lewat database — bukan config
         user = verifikasi_login(username, password)
@@ -33,8 +36,20 @@ def login():
             session["role"]      = user["role"]
             session["nama"]      = user["nama"]
 
+             # catat login berhasil
+            logger.info(
+                "Login berhasil: %s (%s) dari %s",
+                username, user["role"], ip
+            )
+
             flash(f"Selamat datang, {user['nama']}!", "success")
             return redirect(url_for("assets.index"))
+        
+        # catat login gagal — penting untuk deteksi brute force
+        logger.warning(
+            "Login gagal: username='%s' dari %s",
+            username, ip
+        )
 
         flash("Username atau password salah.", "danger")
 
@@ -45,6 +60,9 @@ def login():
 def logout():
     """Hapus session dan redirect ke login."""
     nama = session.get("nama", "")
+    username = session.get("username", "")
+    ip       = request.remote_addr
+    logger.info("Logout: %s dari %s", username, ip)
     session.clear()
     flash(f"Sampai jumpa, {nama}!", "info")
     return redirect(url_for("auth.login"))

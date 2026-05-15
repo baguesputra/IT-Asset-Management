@@ -6,6 +6,10 @@ def create_app() -> Flask:
     app.secret_key = SECRET_KEY
     app.debug      = DEBUG
 
+     # setup logging — sebelum blueprint didaftarkan
+    from app.utils.logger import setup_logger
+    setup_logger(app)
+
     # context processor — inject variabel ke SEMUA template
     # tanpa perlu kirim manual di setiap render_template()
     @app.context_processor
@@ -32,4 +36,5 @@ def create_app() -> Flask:
     with app.app_context():
         init_default_users()            
 
+    app.logger.info("Aplikasi berhasil diinisialisasi") 
     return app
