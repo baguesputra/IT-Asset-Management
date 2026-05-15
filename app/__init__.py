@@ -1,8 +1,10 @@
 from flask import Flask, session
+from config import SECRET_KEY, DEBUG
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.secret_key = "it-asset-rs-2024-ganti-ini-nanti"
+    app.secret_key = SECRET_KEY
+    app.debug      = DEBUG
 
     # context processor — inject variabel ke SEMUA template
     # tanpa perlu kirim manual di setiap render_template()

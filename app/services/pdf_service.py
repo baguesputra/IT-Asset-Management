@@ -1,9 +1,8 @@
 from fpdf import FPDF
 from datetime import datetime
 from collections import Counter
+from config import RS_NAMA, RS_ALAMAT
 
-RS_NAMA     = "Rumah Sakit Umum Daerah"
-RS_ALAMAT   = "Jl. Kesehatan No. 1"
 SISTEM_NAMA = "IT Asset Management System"
 
 HITAM      = (0, 0, 0)

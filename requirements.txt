@@ -2,3 +2,4 @@ pytest
 flask
 bcrypt
 fpdf2
+python-dotenv

@@ -25,3 +25,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Environment — jangan pernah di-push
+.env
+.env.*
+!.env.example
