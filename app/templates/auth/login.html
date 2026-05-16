@@ -4,119 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login — IT Asset Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             min-height: 100vh;
-            background: #0c0e14;
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             position: relative;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            width: 700px; height: 700px;
-            top: -250px; right: -200px;
-            background: radial-gradient(circle, rgba(180,153,100,0.07) 0%, transparent 68%);
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            width: 500px; height: 500px;
-            bottom: -200px; left: -120px;
-            background: radial-gradient(circle, rgba(100,130,180,0.06) 0%, transparent 68%);
-            pointer-events: none;
+            color: #1e293b;
         }
 
         .login-wrapper {
             width: 100%;
-            max-width: 400px;
-            padding: 2rem 1.25rem;
+            max-width: 420px;
+            padding: 1.5rem;
             position: relative;
-            z-index: 2;
         }
 
         /* ── Brand Header ── */
         .brand-header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .brand-icon {
-            width: 52px; height: 52px;
-            background: linear-gradient(135deg, #b49964, #d4b87a);
-            border-radius: 14px;
+            width: 56px; height: 56px;
+            background: #0d6efd;
+            color: white;
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             margin-bottom: 1rem;
-            box-shadow: 0 8px 24px rgba(180,153,100,0.18);
+            box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.2);
         }
 
         .brand-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 23px;
-            font-weight: 600;
-            color: #f0ead8;
-            letter-spacing: 0.02em;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
             line-height: 1.2;
         }
 
+        .brand-name span { color: #0d6efd; }
+
         .brand-sub {
-            font-size: 11px;
-            color: #4a5062;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            font-weight: 300;
-            margin-top: 5px;
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
         }
 
         /* ── Card ── */
         .login-card {
-            background: #13161f;
-            border: 0.5px solid #252934;
-            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
             padding: 2.25rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .card-eyebrow {
-            font-size: 10.5px;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: #b49964;
-            font-weight: 500;
-            margin-bottom: 1.75rem;
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 2rem;
         }
 
         /* ── Flash Messages ── */
         .alert {
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 10px 14px;
             font-size: 13px;
-            margin-bottom: 1.25rem;
-            border: 0.5px solid;
+            margin-bottom: 1.5rem;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .alert-danger, .alert-error {
-            background: rgba(227,75,75,0.08);
-            border-color: rgba(227,75,75,0.25);
-            color: #e88080;
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+        
+        .alert-danger::before {
+            content: '\f057';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
         }
 
         .alert-success {
-            background: rgba(90,175,120,0.08);
-            border-color: rgba(90,175,120,0.25);
-            color: #7ecba0;
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
         }
 
         .alert-warning {
@@ -132,67 +127,65 @@
 
         .field-label {
             display: block;
-            font-size: 10.5px;
-            color: #4a5062;
-            letter-spacing: 0.10em;
-            text-transform: uppercase;
-            font-weight: 400;
-            margin-bottom: 9px;
+            font-size: 0.813rem;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
         .field-input {
             width: 100%;
-            background: #0c0e14;
-            border: 0.5px solid #252934;
-            border-radius: 9px;
+            background: #fcfcfd;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
             padding: 12px 15px;
-            font-family: 'DM Sans', sans-serif;
+            font-family: inherit;
             font-size: 14px;
-            color: #d8d2c4;
+            color: #1e293b;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .field-input:focus {
-            border-color: rgba(180,153,100,0.55);
+            border-color: #0d6efd;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
         }
 
         .field-input::placeholder {
-            color: #2e333f;
+            color: #94a3b8;
         }
 
         /* ── Divider ── */
         .divider {
-            height: 0.5px;
-            background: #1e2230;
-            margin: 1.75rem 0;
+            height: 1px;
+            background: #f1f5f9;
+            margin: 2rem 0;
         }
 
         /* ── Submit Button ── */
         .btn-submit {
             width: 100%;
-            background: linear-gradient(135deg, #b49964 0%, #c9aa72 100%);
+            background: #0d6efd;
             border: none;
-            border-radius: 9px;
+            border-radius: 10px;
             padding: 13px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            color: #0c0e14;
-            letter-spacing: 0.07em;
+            font-family: inherit;
+            font-size: 0.938rem;
+            font-weight: 600;
+            color: #ffffff;
             cursor: pointer;
-            transition: opacity 0.2s ease, transform 0.15s ease;
+            transition: all 0.2s ease;
         }
 
-        .btn-submit:hover  { opacity: 0.87; }
-        .btn-submit:active { transform: scale(0.99); opacity: 0.80; }
+        .btn-submit:hover  { background: #0b5ed7; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25); }
+        .btn-submit:active { transform: translateY(0); }
 
         /* ── Footer ── */
         .footer-note {
             text-align: center;
-            font-size: 11px;
-            color: #2c303a;
-            letter-spacing: 0.07em;
+            font-size: 0.75rem;
+            color: #94a3b8;
             margin-top: 1.5rem;
         }
 
@@ -208,15 +201,16 @@
 
     <!-- Brand -->
     <div class="brand-header">
-        <div class="brand-icon">🖥️</div>
-        <p class="brand-name">IT Asset Management</p>
-        <p class="brand-sub">Sistem Inventaris Aset IT RS</p>
+        <div class="brand-icon"><i class="fas fa-laptop-code"></i></div>
+        <p class="brand-name">IT<span>ASSET</span></p>
+        <p class="brand-sub">Management System</p>
     </div>
 
     <!-- Card -->
     <div class="login-card">
-        <p class="card-eyebrow">Masuk ke akun Anda</p>
-
+        <h2 class="card-title">Selamat Datang</h2>
+        <p class="card-subtitle">Silakan masuk untuk mengelola inventaris.</p>
+        
         <!-- Flash Messages -->
         {% for category, message in get_flashed_messages(with_categories=true) %}
         <div class="alert alert-{{ category }}">{{ message }}</div>
@@ -253,7 +247,7 @@
     </div>
 
     <p class="footer-note">
-        IT Department <span>·</span> {{ 2024 }}
+        &copy; {{ 2024 }} IT Department <span>·</span> v1.0
     </p>
 
 </div>
