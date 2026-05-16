@@ -6,96 +6,133 @@
     <title>IT Asset Management</title>
     
     <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.08); }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #343a40; }
+        
+        /* Navbar Refinement */
+        .navbar { background-color: #ffffff !important; border-bottom: 1px solid #eef1f6; }
+        .navbar-brand { font-size: 1.1rem; letter-spacing: 0.03em; }
+        .nav-link { font-weight: 500; font-size: 0.92rem; color: #6c757d !important; padding: 0.5rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-link:hover { color: #0d6efd !important; background-color: #f8f9fa; }
+        .nav-item.active .nav-link { color: #0d6efd !important; background-color: #e9f1fe; font-weight: 600; }
+        
+        /* Global Framework Utilities */
         .card { border-radius: 12px; transition: transform 0.2s; }
-        .table thead th { background-color: #f1f3f5; color: #495057; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
-        .btn { border-radius: 8px; font-weight: 600; }
+        .table thead th { background-color: #f8f9fa; color: #6c757d; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 1px solid #edf2f7; }
+        .btn { border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+        .dropdown-menu { border: 0; box-shadow: 0 10px 30px rgba(0,0,0,.08); border-radius: 10px; }
+        .dropdown-item { font-size: 0.9rem; font-weight: 500; padding: 0.6rem 1.2rem; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 p-3">
+    <!-- Navbar Modernized -->
+    <nav class="navbar navbar-expand-lg sticky-top mb-4 py-2">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="/assets">
-                <i class="fas fa-laptop-code me-2 text-info"></i> IT ASSET
+            <!-- Brand Logo -->
+            <a class="navbar-brand fw-bold d-flex align-items-center text-dark" href="/assets">
+                <div class="bg-primary-subtle text-primary rounded p-2 me-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <span class="tracking-wider">IT<span class="text-primary">ASSET</span></span>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <!-- Toggler Seluler -->
+            <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon" style="font-size: 0.85rem;"></span>
             </button>
 
+            <!-- Menu Kiri (Navigasi Utama) -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/assets/dashboard"><i class="fas fa-home me-1"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/assets"><i class="fas fa-box me-1"></i> Asset</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/peminjaman"><i class="fas fa-box me-1"></i> Peminjaman</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/assets/filter"><i class="fas fa-filter me-1"></i> Filter</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/assets/statistik"><i class="fas fa-chart-pie me-1"></i> Statistik</a></li>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/assets/dashboard"><i class="fas fa-chart-line me-1.5 opacity-75"></i>Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/assets"><i class="fas fa-boxes me-1.5 opacity-75"></i>Asset</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/peminjaman"><i class="fas fa-exchange-alt me-1.5 opacity-75"></i>Peminjaman</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/assets/filter"><i class="fas fa-filter me-1.5 opacity-75"></i>Filter</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/assets/statistik"><i class="fas fa-chart-pie me-1.5 opacity-75"></i>Statistik</a>
+                    </li>
                 </ul>
 
-                <div class="navbar-nav align-items-center gap-3">
+                <!-- Menu Kanan (Profil User Dropdown terintegrasi) -->
+                <div class="navbar-nav align-items-center">
                     {% if session.get("logged_in") %}
-                    <span class="nav-item text-light opacity-75 small">
-                        {{ current_user }}
-                        <!-- tampilkan badge role -->
-                        {% if current_role == "admin" %}
-                            <span class="badge bg-danger ms-1">Admin</span>
-                        {% else %}
-                            <span class="badge bg-secondary ms-1">Viewer</span>
-                        {% endif %}
-                        <i class="fas fa-user-circle me-1"></i> {{ session.get("username") }}
-                    </span>
-                    <button class="btn btn-outline-light btn-sm dropdown-toggle"
-                            data-bs-toggle="dropdown">
-                        Menu
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        {% if current_role == "admin" %}
-                        <li>
-                            <a class="dropdown-item" href="/users">
-                                👥 Manajemen User
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% endif %}
-                        <li>
-                            <a class="dropdown-item" href="/users/ganti-password">
-                                🔑 Ganti Password
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="/logout">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="nav-item dropdown w-100 text-end">
+                        <button class="btn btn-light bg-transparent border-0 dropdown-toggle py-1 px-2 d-flex align-items-center gap-2 ms-auto" 
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            
+                            <div class="text-end d-none d-sm-block">
+                                <div class="fw-semibold text-dark small" style="line-height: 1.2;">{{ session.get("username") }}</div>
+                                {% if current_role == "admin" %}
+                                    <span class="badge bg-danger-subtle text-danger xsmall px-2" style="font-size: 0.65rem;">Admin</span>
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary xsmall px-2" style="font-size: 0.65rem;">Viewer</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                <i class="fas fa-user-circle fa-lg"></i>
+                            </div>
+                        </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2">
+                            <li class="px-3 py-2 d-sm-none border-bottom mb-2 bg-light rounded-top">
+                                <div class="fw-bold text-dark">{{ session.get("username") }}</div>
+                                <small class="text-muted text-uppercase tracking-wider" style="font-size: 0.65rem;">{{ current_role }}</small>
+                            </li>
+                            {% if current_role == "admin" %}
+                            <li>
+                                <a class="dropdown-item py-2" href="/users">
+                                    <i class="fas fa-users-cog me-2 text-muted" style="width: 16px;"></i>Manajemen User
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item py-2" href="/users/ganti-password">
+                                    <i class="fas fa-key me-2 text-muted" style="width: 16px;"></i>Ganti Password
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item py-2 text-danger" href="/logout">
+                                    <i class="fas fa-sign-out-alt me-2" style="width: 16px;"></i>Keluar Aplikasi
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Struktur Konten Wrapper -->
     <div class="container pb-5">
         <!-- Flash messages -->
         {% for category, message in get_flashed_messages(with_categories=true) %}
-        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 shadow-sm" role="alert">
-            <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }} me-2"></i>
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="fas {{ 'fa-check-circle text-success' if category == 'success' else 'fa-exclamation-circle text-danger' }} me-2"></i>
+            <span class="small fw-medium text-dark">{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.75rem;"></button>
         </div>
         {% endfor %}
 
-        <!-- Konten -->
+        <!-- Konten Halaman Anak -->
         {% block content %}{% endblock %}
     </div>
 

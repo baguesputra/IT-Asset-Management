@@ -4,7 +4,6 @@
 <div class="row justify-content-center">
     <div class="col-md-9 col-lg-12">
         
-        <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb small">
                 <li class="breadcrumb-item"><a href="/assets" class="text-decoration-none text-muted">Daftar Asset</a></li>
@@ -13,7 +12,6 @@
         </nav>
 
         <div class="card border-0 shadow-sm overflow-hidden">
-            <!-- Header dengan gradien halus -->
             <div class="card-header bg-dark bg-gradient py-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <div class="bg-info rounded-3 p-2 me-3 text-white">
@@ -38,7 +36,6 @@
             </div>
 
             <div class="card-body p-0">
-                <!-- Info Utama Grid -->
                 <div class="row g-0 border-bottom">
                     <div class="col-md-4 border-end bg-light p-4">
                         <label class="small text-uppercase fw-bold text-muted d-block mb-1">Jenis Asset</label>
@@ -54,7 +51,6 @@
                     </div>
                 </div>
 
-                <!-- Detail Teknis -->
                 <div class="p-4">
                     <h6 class="fw-bold mb-3 text-muted text-uppercase small">Informasi Teknis</h6>
                     <div class="row gy-3">
@@ -84,7 +80,6 @@
                         </div>
                     </div>
 
-                    <!-- Catatan Section -->
                     <div class="mt-4">
                         <h6 class="fw-bold mb-2 text-muted text-uppercase small">Catatan Internal</h6>
                         <div class="bg-light p-3 rounded-3 border-start border-primary border-4">
@@ -94,38 +89,64 @@
                 </div>
             </div>
 
-            <!-- Footer Action -->
-            <div class="card-footer bg-white py-3 px-4 d-flex align-items-center">
-                <div class="d-flex gap-2">
-                    <a href="/servis/asset/{{ asset.id }}" class="btn btn-info px-4 shadow-sm">
-                        <i class="fas fa-history me-2"></i>Riwayat Servis
-                    </a>
-                    <a href="/peminjaman/riwayat/{{ asset.id }}" class="btn btn-secondary px-4 shadow-sm">
-                        <i class="fas fa-history me-2"></i>Riwayat Pinjam
-                    </a>
-                    {% if is_admin and asset.status == "Aktif" %}
-                    <a href="/peminjaman/catat/{{ asset.id }}" class="btn btn-secondary px-4 shadow-sm">
-                        <i class="fas fa-history me-2"></i>Pinjamkan
-                    </a>
-                    {% endif %}
-                    <a href="/assets/pdf/{{ asset.id }}" class="btn btn-danger px-4 shadow-sm">
-                        <i class="fas fa-file me-2"></i>Pdf
-                    </a>
-                    {% if is_admin %}
-                    <a href="/assets/edit/{{ asset.id }}" class="btn btn-warning px-4 shadow-sm">
-                        <i class="fas fa-edit me-2"></i>Edit
-                    </a>
-                    <form action="/assets/hapus/{{ asset.id }}" method="POST"
-                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus asset {{ asset.name }}?')">
-                        <button class="btn btn-outline-danger px-4">
-                            <i class="fas fa-trash-alt me-2"></i>Hapus
-                        </button>
-                    </form>
-                    {% endif %}
+            <div class="card-footer bg-white py-3 px-4 d-flex align-items-center flex-wrap gap-2">
+                
+                {% if is_admin and asset.status == "Aktif" %}
+                <a href="/peminjaman/catat/{{ asset.id }}" class="btn btn-primary px-3 shadow-sm">
+                    <i class="fas fa-hand-holding-box me-2"></i>Pinjamkan Asset
+                </a>
+                {% endif %}
+
+                <a href="/servis/asset/{{ asset.id }}" class="btn btn-outline-primary px-3">
+                    <i class="fas fa-tools me-2"></i>Log Servis
+                </a>
+
+                <div class="dropdown">
+                    <button class="btn btn-light border dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-history me-2 text-muted"></i>Riwayat & Log
+                    </button>
+                    <ul class="dropdown-menu shadow-sm">
+                        <li>
+                            <a class="dropdown-menu-item dropdown-item py-2" href="/peminjaman/riwayat/{{ asset.id }}">
+                                <i class="fas fa-exchange-alt me-2 text-muted" style="width: 16px;"></i>Riwayat Peminjaman
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-menu-item dropdown-item py-2" href="/assets/pdf/{{ asset.id }}" target="_blank">
+                                <i class="fas fa-file-pdf me-2 text-danger" style="width: 16px;"></i>Cetak Data (PDF)
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+
+                {% if is_admin %}
+                <div class="dropdown">
+                    <button class="btn btn-light border dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-2 text-muted"></i>Kelola
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item py-2 text-warning-emphasis" href="/assets/edit/{{ asset.id }}">
+                                <i class="fas fa-edit me-2" style="width: 16px;"></i>Edit Data Asset
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="/assets/hapus/{{ asset.id }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus asset {{ asset.name }}?')">
+                                <button type="submit" class="dropdown-item py-2 text-danger">
+                                    <i class="fas fa-trash-alt me-2" style="width: 16px;"></i>Hapus Asset Permanen
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+
                 <a href="/assets" class="btn btn-link text-decoration-none text-muted ms-auto">
                     <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
                 </a>
+                
             </div>
         </div>
 
