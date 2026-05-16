@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Statistik ringkas -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="card-body">
+                <h2 class="fw-bold text-primary mb-0">
+                    {{ stats.aktif }}
+                </h2>
+                <div class="text-muted small mt-1">
+                    Sedang Dipinjam
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="card-body">
+                <h2 class="fw-bold text-danger mb-0">
+                    {{ stats.terlambat }}
+                </h2>
+                <div class="text-muted small mt-1">
+                    Terlambat Dikembalikan
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="card-body">
+                <h2 class="fw-bold text-secondary mb-0">
+                    {{ stats.total }}
+                </h2>
+                <div class="text-muted small mt-1">
+                    Total Peminjaman
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">Peminjaman Aktif</h5>
+    <a href="/assets" class="btn btn-outline-secondary btn-sm">
+        Lihat Semua Asset
+    </a>
+</div>
+
+<!-- Tabel peminjaman aktif -->
+{% if aktif %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Asset</th>
+                    <th>Peminjam</th>
+                    <th>Unit</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Rencana Kembali</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in aktif %}
+                <tr class="{{ 'table-danger' if p.terlambat else '' }}">
+                    <td>
+                        <a href="/assets/detail/{{ p.asset_id }}"
+                           class="text-decoration-none fw-semibold">
+                            {{ p.asset_name }}
+                        </a>
+                        <div class="text-muted small">
+                            {{ p.asset_type }}
+                        </div>
+                    </td>
+                    <td>{{ p.nama_peminjam }}</td>
+                    <td>{{ p.unit_peminjam }}</td>
+                    <td>{{ p.tanggal_pinjam }}</td>
+                    <td>
+                        {{ p.tanggal_rencana_kembali }}
+                        {% if p.terlambat %}
+                            <div class="text-danger small fw-bold">
+                                Terlambat {{ p.hari_sisa | abs }} hari
+                            </div>
+                        {% elif p.hari_sisa == 0 %}
+                            <div class="text-warning small">
+                                Hari ini
+                            </div>
+                        {% elif p.hari_sisa <= 2 %}
+                            <div class="text-warning small">
+                                {{ p.hari_sisa }} hari lagi
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-warning text-dark">
+                            Dipinjam
+                        </span>
+                    </td>
+                    <td>
+                        {% if is_admin %}
+                        <form action="/peminjaman/kembali/{{ p.id }}"
+                              method="POST"
+                              onsubmit="return confirm(
+                                'Konfirmasi {{ p.asset_name }} sudah dikembalikan?'
+                              )">
+                            <button class="btn btn-success btn-sm">
+                                ✓ Sudah Kembali
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center text-muted py-5">
+        <p class="mb-0">Tidak ada asset yang sedang dipinjam.</p>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

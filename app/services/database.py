@@ -101,6 +101,24 @@ def init_db() -> None:
         )
         """)
 
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS peminjaman (
+                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+                asset_id            TEXT NOT NULL,
+                nama_peminjam       TEXT NOT NULL,
+                unit_peminjam       TEXT NOT NULL,
+                tanggal_pinjam      TEXT NOT NULL,
+                tanggal_rencana_kembali TEXT NOT NULL,
+                tanggal_kembali     TEXT,
+                keperluan           TEXT,
+                status              TEXT DEFAULT 'Dipinjam',
+                dicatat_oleh        TEXT NOT NULL,
+                created_at          TEXT NOT NULL,
+
+                FOREIGN KEY (asset_id) REFERENCES assets(id)
+            )
+        """)
+
         # commit = simpan perubahan ke file
         conn.commit()
 
@@ -112,3 +130,36 @@ def init_db() -> None:
         logger.critical("Gagal inisialisasi database: %s", str(e))
         raise
 
+def migrate_db() -> None:
+    """
+    Jalankan perubahan skema database yang belum ada.
+    Aman dijalankan berkali-kali — IF NOT EXISTS mencegah duplikat.
+    """
+    from app.utils.logger import get_logger
+    logger = get_logger("database")
+
+    conn = get_connection()
+    try:
+        # tambah tabel peminjaman kalau belum ada
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS peminjaman (
+                id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+                asset_id                TEXT NOT NULL,
+                nama_peminjam           TEXT NOT NULL,
+                unit_peminjam           TEXT NOT NULL,
+                tanggal_pinjam          TEXT NOT NULL,
+                tanggal_rencana_kembali TEXT NOT NULL,
+                tanggal_kembali         TEXT,
+                keperluan               TEXT,
+                status                  TEXT DEFAULT 'Dipinjam',
+                dicatat_oleh            TEXT NOT NULL,
+                created_at              TEXT NOT NULL,
+                FOREIGN KEY (asset_id) REFERENCES assets(id)
+            )
+        """)
+        conn.commit()
+        logger.info("Migrasi database selesai")
+    except Exception as e:
+        logger.error("Migrasi database gagal: %s", str(e))
+    finally:
+        conn.close()

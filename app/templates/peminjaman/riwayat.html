@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Info asset -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="fw-bold mb-1">{{ asset.name }}</h5>
+        <span class="text-muted">
+            Riwayat Peminjaman · {{ riwayat | length }} catatan
+        </span>
+    </div>
+    <a href="/assets/detail/{{ asset.id }}"
+       class="btn btn-outline-secondary btn-sm">
+        ← Detail Asset
+    </a>
+</div>
+
+{% if riwayat %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Peminjam</th>
+                    <th>Unit</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Rencana Kembali</th>
+                    <th>Tgl Kembali</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in riwayat %}
+                <tr>
+                    <td>{{ p.nama_peminjam }}</td>
+                    <td>{{ p.unit_peminjam }}</td>
+                    <td>{{ p.tanggal_pinjam }}</td>
+                    <td>{{ p.tanggal_rencana_kembali }}</td>
+                    <td>{{ p.tanggal_kembali or '-' }}</td>
+                    <td>
+                        {% if p.status == "Dipinjam" %}
+                            <span class="badge bg-warning text-dark">
+                                Dipinjam
+                            </span>
+                        {% else %}
+                            <span class="badge bg-success">
+                                Sudah Kembali
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-center text-muted py-5">
+        Belum ada riwayat peminjaman untuk asset ini.
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,9 +1,14 @@
-from flask import Flask, session, render_template
+from flask import Flask, app, session, render_template
+from app.services.user_service import init_default_users
 from config import SECRET_KEY, DEBUG
 import uuid
+from app.services.database import migrate_db             
+from app.routes.peminjaman_routes import peminjaman_bp  
+  
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    app.register_blueprint(peminjaman_bp) 
     app.secret_key = SECRET_KEY
     app.debug      = DEBUG
 
@@ -35,6 +40,12 @@ def create_app() -> Flask:
 
     # ── Error handlers ────────────────────────────
     register_error_handlers(app)
+
+    with app.app_context():
+        from app.services.user_service import init_default_users
+        from app.services.database import migrate_db
+        init_default_users()
+        migrate_db() 
 
     from app.services.user_service import init_default_users
     with app.app_context():
