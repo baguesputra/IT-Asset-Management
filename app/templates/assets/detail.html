@@ -86,6 +86,47 @@
                             <p class="mb-0 text-dark italic">{{ asset.notes or 'Tidak ada catatan tambahan.' }}</p>
                         </div>
                     </div>
+                    {% if asset.masa_garansi_bulan %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-3 text-muted text-uppercase small">Informasi Pengadaan & Garansi</h6>
+                        <div class="row gy-3">
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded-3 bg-white">
+                                    <label class="d-block small text-muted">Vendor</label>
+                                    <span class="fw-semibold">{{ asset.vendor or '---' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded-3 bg-white">
+                                    <label class="d-block small text-muted">No. Kontrak</label>
+                                    <code class="text-dark fw-bold">{{ asset.no_kontrak or '---' }}</code>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded-3 bg-white">
+                                    <label class="d-block small text-muted">Harga Beli</label>
+                                    <span class="fw-semibold">
+                                        {% if asset.harga_beli %}
+                                            Rp {{ "{:,}".format(asset.harga_beli) }}
+                                        {% else %}
+                                            ---
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded-3 bg-white">
+                                    <label class="d-block small text-muted">Garansi</label>
+                                    <span class="fw-semibold">
+                                        <i class="fas fa-shield-alt text-success me-1"></i>
+                                        {{ asset.masa_garansi_bulan }} bulan
+                                        <span class="text-muted small fw-normal">(s/d {{ asset.tgl_garansi_mulai or '-' }})</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 

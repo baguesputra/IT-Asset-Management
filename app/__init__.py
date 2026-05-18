@@ -31,12 +31,14 @@ def create_app() -> Flask:
     from app.routes.auth_routes  import auth_bp
     from app.routes.servis_routes import servis_bp 
     from app.routes.user_routes import user_bp
+    from app.routes.garansi_routes import garansi_bp
 
     app.register_blueprint(asset_bp)
     app.register_blueprint(main_bp)   
     app.register_blueprint(auth_bp) 
     app.register_blueprint(servis_bp)
     app.register_blueprint(user_bp) 
+    app.register_blueprint(garansi_bp)
 
     # ── Error handlers ────────────────────────────
     register_error_handlers(app)

@@ -140,7 +140,7 @@ def migrate_db() -> None:
 
     conn = get_connection()
     try:
-        # tambah tabel peminjaman kalau belum ada
+        # tabel peminjaman
         conn.execute("""
             CREATE TABLE IF NOT EXISTS peminjaman (
                 id                      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,9 +157,33 @@ def migrate_db() -> None:
                 FOREIGN KEY (asset_id) REFERENCES assets(id)
             )
         """)
+
+        # kolom garansi & vendor di tabel assets
+        # ALTER TABLE ADD COLUMN — aman, tidak hapus data
+        kolom_baru = [
+            ("harga_beli",         "INTEGER DEFAULT 0"),
+            ("vendor",             "TEXT"),
+            ("no_kontrak",         "TEXT"),
+            ("masa_garansi_bulan", "INTEGER DEFAULT 0"),
+            ("tgl_garansi_mulai",  "TEXT"),
+        ]
+
+        # ambil kolom yang sudah ada
+        cursor       = conn.execute("PRAGMA table_info(assets)")
+        kolom_ada    = {row["name"] for row in cursor.fetchall()}
+
+        for nama_kolom, tipe in kolom_baru:
+            if nama_kolom not in kolom_ada:
+                conn.execute(
+                    f"ALTER TABLE assets ADD COLUMN {nama_kolom} {tipe}"
+                )
+                logger.info("Kolom '%s' ditambahkan ke tabel assets", nama_kolom)
+
         conn.commit()
         logger.info("Migrasi database selesai")
+
     except Exception as e:
         logger.error("Migrasi database gagal: %s", str(e))
+        conn.rollback()
     finally:
         conn.close()

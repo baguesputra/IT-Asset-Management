@@ -96,6 +96,58 @@
                                   placeholder="Spesifikasi teknis singkat atau kondisi awal asset..."></textarea>
                     </div>
 
+                    <!-- Section garansi & vendor -->
+                    <hr class="my-4">
+                    <h6 class="fw-bold text-muted mb-3">Informasi Garansi & Vendor</h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Harga Beli (Rp)</label>
+                            <input type="number" name="harga_beli"
+                                class="form-control" min="0"
+                                placeholder="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Vendor / Supplier</label>
+                            <input type="text" name="vendor"
+                                class="form-control"
+                                placeholder="Nama vendor">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">No. Kontrak / PO</label>
+                            <input type="text" name="no_kontrak"
+                                class="form-control"
+                                placeholder="Nomor kontrak pembelian">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                Masa Garansi (bulan)
+                            </label>
+                            <select name="masa_garansi_bulan" class="form-select">
+                                <option value="0">Tidak ada garansi</option>
+                                <option value="3">3 bulan</option>
+                                <option value="6">6 bulan</option>
+                                <option value="12">12 bulan (1 tahun)</option>
+                                <option value="24">24 bulan (2 tahun)</option>
+                                <option value="36">36 bulan (3 tahun)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Tanggal Garansi Mulai
+                        </label>
+                        <input type="date" name="tgl_garansi_mulai"
+                            class="form-control">
+                        <div class="form-text">
+                            Kosongkan jika sama dengan tanggal pembelian
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="d-flex gap-2 pt-2">
                         <button type="submit" class="btn btn-primary px-4 shadow-sm">

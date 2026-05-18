@@ -43,19 +43,23 @@ def write_log(action: str, detail: str) -> None:
 # ── CRUD ──────────────────────────────────────────
 
 def tambah_asset(data: dict) -> Asset:
-    """Buat Asset baru dan simpan ke database."""
-    asset = Asset(**data)
-    conn  = get_connection()
+    asset  = Asset(**data)
+    conn   = get_connection()
 
     conn.execute("""
         INSERT INTO assets (
             id, name, type, brand, serial, purchase_date,
-            location, pic, notes, status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            location, pic, notes, status,
+            harga_beli, vendor, no_kontrak,
+            masa_garansi_bulan, tgl_garansi_mulai,
+            created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         asset.id, asset.name, asset.type, asset.brand,
         asset.serial, asset.purchase_date, asset.location,
         asset.pic, asset.notes, asset.status,
+        asset.harga_beli, asset.vendor, asset.no_kontrak,
+        asset.masa_garansi_bulan, asset.tgl_garansi_mulai,
         asset.created_at, asset.updated_at
     ))
 

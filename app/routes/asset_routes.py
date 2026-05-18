@@ -51,6 +51,11 @@ def tambah():
             "location":      request.form["location"],
             "pic":           request.form["pic"],
             "notes":         request.form.get("notes", ""),
+            "harga_beli":         int(request.form.get("harga_beli") or 0),
+            "vendor":             request.form.get("vendor", ""),
+            "no_kontrak":         request.form.get("no_kontrak", ""),
+            "masa_garansi_bulan": int(request.form.get("masa_garansi_bulan") or 0),
+            "tgl_garansi_mulai":  request.form.get("tgl_garansi_mulai", ""),
         }
 
         asset = tambah_asset(data)
