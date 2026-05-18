@@ -32,6 +32,7 @@ def create_app() -> Flask:
     from app.routes.servis_routes import servis_bp 
     from app.routes.user_routes import user_bp
     from app.routes.garansi_routes import garansi_bp
+    from app.routes.depresiasi_routes import depresiasi_bp
 
     app.register_blueprint(asset_bp)
     app.register_blueprint(main_bp)   
@@ -39,6 +40,7 @@ def create_app() -> Flask:
     app.register_blueprint(servis_bp)
     app.register_blueprint(user_bp) 
     app.register_blueprint(garansi_bp)
+    app.register_blueprint(depresiasi_bp)
 
     # ── Error handlers ────────────────────────────
     register_error_handlers(app)

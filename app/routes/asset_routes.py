@@ -74,14 +74,22 @@ def tambah():
     )
 
 @asset_bp.route("/detail/<asset_id>")
-@login_required 
+@login_required
 def detail(asset_id: str):
-    """Halaman detail satu asset."""
     asset = get_asset_by_id(asset_id)
     if asset is None:
         flash("Asset tidak ditemukan.", "danger")
         return redirect(url_for("assets.index"))
-    return render_template("assets/detail.html", asset=asset)
+
+    # hitung depresiasi untuk ditampilkan di detail
+    from app.services.depresiasi_service import hitung_depresiasi
+    depresiasi = hitung_depresiasi(asset)
+
+    return render_template(
+        "assets/detail.html",
+        asset      = asset,
+        depresiasi = depresiasi,
+    )
 
 
 @asset_bp.route("/edit/<asset_id>", methods=["GET", "POST"])

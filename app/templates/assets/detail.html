@@ -124,6 +124,41 @@
                                     </span>
                                 </div>
                             </div>
+<!-- Section depresiasi -->
+{% if asset.harga_beli %}
+<tr>
+    <th class="table-light">Harga Beli</th>
+    <td>Rp {{ "{:,}".format(asset.harga_beli) }}</td>
+</tr>
+{% endif %}
+
+
+
+                            {% if depresiasi %}
+<tr>
+    <th class="table-light">Nilai Sekarang</th>
+    <td>
+        <span class="fw-semibold">
+            Rp {{ "{:,}".format(depresiasi.nilai_sekarang) }}
+        </span>
+        <span class="text-muted small ms-2">
+            ({{ depresiasi.persen_tersisa }}% dari harga beli)
+        </span>
+    </td>
+</tr>
+<tr>
+    <th class="table-light">Umur Asset</th>
+    <td>
+        {{ depresiasi.umur_sekarang }} /
+        {{ depresiasi.umur_ekonomis }} tahun
+        {% if depresiasi.sudah_habis %}
+            <span class="badge bg-danger ms-1">
+                Habis Umur Ekonomis
+            </span>
+        {% endif %}
+    </td>
+</tr>
+{% endif %}
                         </div>
                     </div>
                     {% endif %}
